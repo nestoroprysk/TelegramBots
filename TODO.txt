@@ -1,0 +1,6 @@
+1. Create an update script which pushes updates
+2. Cover nicely
+3. Create an expenses bot
+4. Deploy a DB per user per function
+5. Automate deploy or provide a detailed README
+6. Create a notes bot

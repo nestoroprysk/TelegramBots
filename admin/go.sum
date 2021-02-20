@@ -1,0 +1,5 @@
+github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
+github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
+github.com/nestoroprysk/TelegramBots v0.0.0-20210220203128-73e17595a5bd h1:GzM0UnUOnPf7tgHIj0AMXOTF9Z9zflUN3FvyrhXBnVg=
+github.com/nestoroprysk/TelegramBots/util v0.0.0-20210220203128-73e17595a5bd h1:Jyn3VbTUaHeTrgBrUE6GLf/tN1S7OHgcz02rbMAZS0k=
+github.com/nestoroprysk/TelegramBots/util v0.0.0-20210220203128-73e17595a5bd/go.mod h1:3ZlMWUaTt5MnGaHuIhIDm9aExDmWNBmluhZdZg0IiAE=
