@@ -1,4 +1,4 @@
-module github.com/nestoroprysk/TelegramBots/util
+module github.com/nestoroprysk/TelegramBots/expenses
 
 go 1.15
 
