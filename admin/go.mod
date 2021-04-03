@@ -1,4 +1,4 @@
-module github.com/nestoroprysk/TelegramBots/blob/master/admin
+module github.com/nestoroprysk/TelegramBots/admin
 
 go 1.13
 
