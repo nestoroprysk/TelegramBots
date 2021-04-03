@@ -1,5 +1,8 @@
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/nestoroprysk/TelegramBots v0.0.0-20210403124032-1166406b1a4a h1:BvkP7ADY0SalwOPKB0xlhbf1E5sy8/o/eJ5e/ASzN+8=
+github.com/nestoroprysk/TelegramBots v0.0.0-20210403131610-f214a8e39543 h1:XlReu6PvYi7MdWwc4lFm3u+ft5mg3+qsddoJNAGoTCg=
+github.com/nestoroprysk/TelegramBots/admin v0.0.0-20210403131610-f214a8e39543 h1:TgBo5UmKzBoy0vxJ7ux4cNcZLr8dJ/owZGI6U0rsVY0=
+github.com/nestoroprysk/TelegramBots/admin v0.0.0-20210403131610-f214a8e39543/go.mod h1:hI4KVbpSWkYTAZtGo1UyOAu0ZMLYOXuiPXQtd3rXQYc=
 github.com/nestoroprysk/TelegramBots/util v0.0.0-20210403124032-1166406b1a4a h1:xAE02Mkd6q7nTIU4sgTMG+OTpnVYjKtag1ppJU9Q5hI=
 github.com/nestoroprysk/TelegramBots/util v0.0.0-20210403124032-1166406b1a4a/go.mod h1:3ZlMWUaTt5MnGaHuIhIDm9aExDmWNBmluhZdZg0IiAE=
