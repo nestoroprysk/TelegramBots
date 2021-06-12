@@ -1,0 +1,10 @@
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - HandleAdminSQL
+  - --region=europe-west3
+  - --source=admin
+  - --trigger-http

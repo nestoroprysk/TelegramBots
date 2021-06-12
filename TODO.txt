@@ -1,4 +1,4 @@
-1. Create an update script which pushes updates
+1. Create an update script which pushes updates on master commits
 2. Cover nicely
 3. Create an expenses bot
 4. Deploy a DB per user per function
