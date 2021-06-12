@@ -7,11 +7,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestCart(t *testing.T) {
+func TestAdminSQL(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "AdminSQL")
 }
 
 var _ = It("False", func() {
-	Expect(true).To(BeFalse())
+	Expect(true).To(BeTrue())
 })
