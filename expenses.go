@@ -1,4 +1,4 @@
-package expenses
+package bot
 
 import (
 	"net/http"

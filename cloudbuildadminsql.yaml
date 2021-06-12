@@ -1,14 +1,12 @@
 steps:
 - name: 'mirror.gcr.io/library/golang'
-  args: ['go', 'test', './...']
-  dir: 'util'
+  args: ['go', 'test']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
   - functions
   - deploy
   - AdminSQL
-  - --source=admin
   - --entry-point=HandleAdminSQL
   - --region=europe-west3
   - --trigger-http

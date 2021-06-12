@@ -1,4 +1,4 @@
-package util_test
+package bot
 
 import (
 	"testing"
