@@ -5,6 +5,7 @@ steps:
   - functions
   - deploy
   - AdminSQL
+  - --source=admin
   - --entry-point=HandleAdminSQL
   - --region=europe-west3
   - --trigger-http
