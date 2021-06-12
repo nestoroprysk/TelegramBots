@@ -2,8 +2,4 @@ module github.com/nestoroprysk/TelegramBots/admin
 
 go 1.13
 
-require (
-	github.com/nestoroprysk/TelegramBots/util v0.0.0-20210403124032-1166406b1a4a
-	github.com/onsi/ginkgo v1.16.4
-	github.com/onsi/gomega v1.13.0
-)
+require github.com/nestoroprysk/TelegramBots/util v0.0.0-20210403124032-1166406b1a4a

@@ -1,4 +1,4 @@
-package admin_test
+package util_test
 
 import (
 	"testing"
@@ -9,9 +9,9 @@ import (
 
 func TestAdminSQL(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "AdminSQL")
+	RunSpecs(t, "Util Test Suite")
 }
 
-var _ = It("False", func() {
+var _ = It("True", func() {
 	Expect(true).To(BeTrue())
 })
