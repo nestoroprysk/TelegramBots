@@ -9,6 +9,6 @@ steps:
   - deploy
   - AdminSQL
   - --source=admin
-  - --entry-point=HandleAdminSQL
+  - --entry-point=admin.HandleAdminSQL
   - --region=europe-west3
   - --trigger-http
