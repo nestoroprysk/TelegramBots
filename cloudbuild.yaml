@@ -4,7 +4,8 @@ steps:
   - gcloud
   - functions
   - deploy
-  - HandleAdminSQL
-  - --region=europe-west3
+  - AdminSQL
   - --source=admin
+  - --entry-point=HandleAdminSQL
+  - --region=europe-west3
   - --trigger-http
