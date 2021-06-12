@@ -1,4 +1,4 @@
-package lowlevel
+package util
 
 import (
 	"database/sql"

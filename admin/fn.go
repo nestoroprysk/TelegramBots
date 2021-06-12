@@ -4,25 +4,25 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nestoroprysk/TelegramBots/lowlevel"
+	"github.com/nestoroprysk/TelegramBots/util"
 )
 
 func HandleAdminSQL(w http.ResponseWriter, r *http.Request) {
 	// Parse incoming request
-	var update, err = lowlevel.ParseTelegramRequest(r)
+	var update, err = util.ParseTelegramRequest(r)
 	if err != nil {
 		log.Printf("error parsing update, %s", err.Error())
 		return
 	}
 
-	text, err := lowlevel.SendSQLRequest(update.Message.Text)
+	text, err := util.SendSQLRequest(update.Message.Text)
 	if err != nil {
 		log.Printf("error interacting with SQL, %s", err.Error())
 		text = err.Error()
 	}
 
 	// Send the SQL response back to Telegram
-	response, err := lowlevel.SendTextToTelegramChat(update.Message.Chat.Id, text)
+	response, err := util.SendTextToTelegramChat(update.Message.Chat.Id, text)
 	if err != nil {
 		log.Printf("got error %s from telegram, reponse body is %s", err.Error(), response)
 	} else {

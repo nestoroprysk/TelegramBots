@@ -1,4 +1,4 @@
-module github.com/nestoroprysk/TelegramBots/lowlevel
+module github.com/nestoroprysk/TelegramBots/util
 
 go 1.13
 
