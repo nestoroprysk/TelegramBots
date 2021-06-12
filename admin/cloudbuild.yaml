@@ -1,4 +1,7 @@
 steps:
+- name: 'mirror.gcr.io/library/golang'
+  args: ['go', 'test']
+  dir: 'admin'
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
