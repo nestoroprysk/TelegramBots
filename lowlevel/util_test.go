@@ -1,4 +1,4 @@
-package util_test
+package lowlevel_test
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 
 func TestAdminSQL(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Util Test Suite")
+	RunSpecs(t, "Lowlevel Test Suite")
 }
 
 var _ = It("True", func() {
