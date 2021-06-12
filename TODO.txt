@@ -5,3 +5,4 @@
 5. Automate deploy or provide a detailed README
 6. Create a notes bot
 7. Migrate to gitlab and make a CI which runs tests and deploys
+8. Add all the types of tests https://cloud.google.com/functions/docs/testing/test-http#functions-testing-http-system-go
