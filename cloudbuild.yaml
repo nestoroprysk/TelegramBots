@@ -10,3 +10,12 @@ steps:
   - --entry-point=HandleAdminSQL
   - --region=europe-west3
   - --trigger-http
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - Expenses
+  - --entry-point=HandleExpenses
+  - --region=europe-west3
+  - --trigger-http
