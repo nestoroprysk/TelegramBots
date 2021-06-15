@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func HandleAdminSQL(_ http.ResponseWriter, r *http.Request) {
+func HandleAdminSQL(w http.ResponseWriter, r *http.Request) {
 	// Parse incoming request
 	var update, err = ParseTelegramRequest(r)
 	if err != nil {
