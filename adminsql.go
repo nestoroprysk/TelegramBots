@@ -20,10 +20,10 @@ func HandleAdminSQL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the SQL response back to Telegram
-	response, err := SendTextToTelegramChat(update.Message.Chat.Id, text)
+	response, err := SendTextToTelegramChat(update.Message.Chat.ID, text)
 	if err != nil {
 		log.Printf("got error %s from telegram, reponse body is %s", err.Error(), response)
 	} else {
-		log.Printf("response %s successfuly distributed to chat id %d", update.Message.Text, update.Message.Chat.Id)
+		log.Printf("response %s successfuly distributed to chat id %d", update.Message.Text, update.Message.Chat.ID)
 	}
 }

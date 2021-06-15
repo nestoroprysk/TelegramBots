@@ -15,32 +15,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Update is a Telegram object that the handler receives every time an user interacts with the bot.
-type Update struct {
-	UpdateId int     `json:"update_id"`
-	Message  Message `json:"message"`
-}
-
-// Message is a Telegram object that can be found in an update.
-type Message struct {
-	Text string `json:"text"`
-	Chat Chat   `json:"chat"`
-}
-
-// A Telegram Chat indicates the conversation to which the message belongs.
-type Chat struct {
-	Id int `json:"id"`
-}
-
-// parseTelegramRequest handles incoming update from the Telegram web hook
-func ParseTelegramRequest(r *http.Request) (*Update, error) {
+// ParseTelegramRequest handles incoming update from the Telegram web hook.
+func ParseTelegramRequest(r *http.Request) (Update, error) {
 	var update Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		log.Printf("could not decode incoming update %s", err.Error())
-		return nil, err
+		return Update{}, err
 	}
 
-	return &update, nil
+	return update, nil
 }
 
 func SendSQLRequest(r string) (string, error) {

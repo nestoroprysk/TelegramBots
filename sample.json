@@ -1,0 +1,20 @@
+{
+  "message": {
+    "message_id": 345,
+    "from": {
+      "id": 381126698,
+      "is_bot": false,
+      "first_name": "Nestor",
+      "username": "npetro",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 381126698,
+      "first_name": "Nestor",
+      "username": "npetro",
+      "type": "private"
+    },
+    "date": 1623779885,
+    "text": "select 9;"
+  }
+}
