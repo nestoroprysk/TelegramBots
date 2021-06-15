@@ -5,25 +5,34 @@ import (
 	"net/http"
 )
 
+// HangeAdminSQL sends an SQL query and response with the result to Telegram.
 func HandleAdminSQL(w http.ResponseWriter, r *http.Request) {
-	// Parse incoming request
-	var update, err = ParseTelegramRequest(r)
+	env, err := MakeEnv()
 	if err != nil {
-		log.Printf("error parsing update, %s", err.Error())
+		log.Fatalf("failed to initialize the environment: %s", err.Error())
 		return
 	}
 
-	text, err := SendSQLRequest(update.Message.Text)
+	telegram := NewTelegramClient(env.Telegram)
+	admin := NewSQLClient(env.DB)
+
+	update, err := ParseTelegramRequest(r)
 	if err != nil {
-		log.Printf("error interacting with SQL, %s", err.Error())
+		log.Printf("failed to parse the update: %s", err.Error())
+		return
+	}
+
+	text, err := admin.Send(update.Message.Text)
+	if err != nil {
+		log.Printf("%s", err.Error())
 		text = err.Error()
 	}
 
-	// Send the SQL response back to Telegram
-	response, err := SendTextToTelegramChat(update.Message.Chat.ID, text)
-	if err != nil {
-		log.Printf("got error %s from telegram, reponse body is %s", err.Error(), response)
+	response, err := telegram.Send(text, update.Message.Chat.ID)
+	if err == nil {
+		log.Printf("successfully sent %q to %q: %s", text, update.Message.Chat.ID, response)
 	} else {
-		log.Printf("response %s successfuly distributed to chat id %d", update.Message.Text, update.Message.Chat.ID)
+		// TODO: capture
+		log.Fatalf("failed to send %q to %q: %s", text, update.Message.Chat.ID, err.Error())
 	}
 }
