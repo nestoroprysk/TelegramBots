@@ -35,6 +35,9 @@ type Chat struct {
 // parseTelegramRequest handles incoming update from the Telegram web hook
 func ParseTelegramRequest(r *http.Request) (*Update, error) {
 	var update Update
+	all, err := ioutil.ReadAll(r.Body)
+	log.Printf("%s\n%v", all, err)
+
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		log.Printf("could not decode incoming update %s", err.Error())
 		return nil, err
