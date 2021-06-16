@@ -29,6 +29,8 @@ type DB struct {
 	InstanceConnectionName string
 }
 
+// Add email env
+
 // MakeEnv initializes the environment from environmental variables.
 func MakeEnv() (Env, error) {
 	result := Env{}
