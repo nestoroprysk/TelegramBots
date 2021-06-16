@@ -8,8 +8,10 @@ Infrastracture setup may be done by:
 4. Creating push to master triggers https://cloud.google.com/build/docs/automating-builds/create-manage-triggers 
 5. Emailing build results https://stackoverflow.com/questions/62449482/email-notification-to-a-user-once-the-build-is-successfully-deployed-using-googl 
 ```bash
+# https://cloud.google.com/sdk/gcloud/reference/pubsub/topics/create
 gcloud pubsub topics create cloud-builds
-gcloud pubsub subscriptions create cloud-builds --topic=cloud-builds
+# https://cloud.google.com/sdk/gcloud/reference/pubsub/subscriptions/create
+gcloud pubsub subscriptions create cloud-builds --topic=cloud-builds --message-filter='attributes.status = "SUCCESS" OR attributes.status = "TIMEOUT" OR attributes.status =  "FAILURE"'
 ```
 
 Many thanks to the posts that helped a lot:
