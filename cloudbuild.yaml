@@ -12,6 +12,7 @@ steps:
   - --entry-point=HandleAdminSQL
   - --region=europe-west3
   - --trigger-http
+  - --runtime go113
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
@@ -21,3 +22,14 @@ steps:
   - --entry-point=HandleExpenses
   - --region=europe-west3
   - --trigger-http
+  - --runtime go113
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - BuildResultEmailer 
+  - --entry-point=BuildResultEmail
+  - --region=europe-west3
+  - --trigger-topic cloud-build
+  - --runtime go113
