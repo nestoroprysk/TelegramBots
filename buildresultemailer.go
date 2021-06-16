@@ -32,8 +32,8 @@ func BuildResultEmail(ctx context.Context, m PubSubMessage) error {
 
 	msg := "From: " + from + "\n" +
 		"To: " + to + "\n" +
-		"Subject: Hello there\n\n" +
-		string(m.Data)
+		"Subject: Build Result\n\n" + // TODO: inform about success/fail in subject
+		string(m.Data) // TODO: trim and format data
 
 	err := smtp.SendMail("smtp.gmail.com:587",
 		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),

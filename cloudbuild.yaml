@@ -1,8 +1,12 @@
 steps:
 - name: 'mirror.gcr.io/library/golang'
   args: ['go', 'build']
+  id: 'build'
+  waitFor: ['-']
 - name: 'mirror.gcr.io/library/golang'
   args: ['go', 'test']
+  id: 'test'
+  waitFor: ['-']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
@@ -13,6 +17,7 @@ steps:
   - --region=europe-west3
   - --trigger-http
   - --runtime=go113
+  waitFor: ['build', 'test']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
@@ -23,6 +28,7 @@ steps:
   - --region=europe-west3
   - --trigger-http
   - --runtime=go113
+  waitFor: ['build', 'test']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - gcloud
@@ -33,3 +39,4 @@ steps:
   - --region=europe-west3
   - --trigger-topic=cloud-builds
   - --runtime=go113
+  waitFor: ['build', 'test']
