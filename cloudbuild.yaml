@@ -31,5 +31,5 @@ steps:
   - BuildResultEmailer 
   - --entry-point=BuildResultEmail
   - --region=europe-west3
-  - --trigger-topic=cloud-build
+  - --trigger-topic=cloud-builds
   - --runtime=go113

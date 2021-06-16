@@ -7,6 +7,10 @@ Infrastracture setup may be done by:
 3. Setting proper environmental variables for all the functions
 4. Creating push to master triggers https://cloud.google.com/build/docs/automating-builds/create-manage-triggers 
 5. Emailing build results https://stackoverflow.com/questions/62449482/email-notification-to-a-user-once-the-build-is-successfully-deployed-using-googl 
+```bash
+gcloud pubsub topics create cloud-builds
+gcloud pubsub subscriptions create cloud-builds --topic=cloud-builds
+```
 
 Many thanks to the posts that helped a lot:
 - On deploying GKF https://medium.com/google-cloud/google-cloud-functions-for-go-57e4af9b10da
