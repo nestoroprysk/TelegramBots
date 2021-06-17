@@ -21,6 +21,7 @@ steps:
   - --memory=128MB
   - --max-instances=1
   - --allow-unauthenticated
+  - --env-vars-file=.env.yaml
   waitFor: ['build', 'test']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
