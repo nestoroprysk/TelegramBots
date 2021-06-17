@@ -12,8 +12,8 @@ steps:
   - gcloud
   - functions
   - deploy
-  - Admin
-  - --entry-point=Admin
+  - AdminSQL
+  - --entry-point=HandleAdminSQL
   - --region=europe-west3
   - --trigger-http
   - --runtime=go113
@@ -28,12 +28,10 @@ steps:
   - functions
   - deploy
   - Expenses
-  - --entry-point=Expenses
+  - --entry-point=HandleExpenses
   - --region=europe-west3
   - --trigger-http
   - --runtime=go113
-  - --memory=128MB
-  - --max-instances=1
   - --allow-unauthenticated
   waitFor: ['build', 'test']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -41,8 +39,8 @@ steps:
   - gcloud
   - functions
   - deploy
-  - Email 
-  - --entry-point=Email
+  - BuildResultEmailer 
+  - --entry-point=BuildResultEmail
   - --region=europe-west3
   - --trigger-topic=cloud-builds
   - --runtime=go113

@@ -6,6 +6,6 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/cmd"
 )
 
-func Expenses(w http.ResponseWriter, r *http.Request) {
-	cmd.Expenses(w, r)
+func Email(w http.ResponseWriter, r *http.Request) {
+	cmd.Email(w, r)
 }

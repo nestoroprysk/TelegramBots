@@ -1,14 +1,20 @@
-package bot
+package cmd
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/nestoroprysk/TelegramBots/internal/util"
 )
 
+//	github.com/nestoroprysk/TelegramBots/internal/util"
+
+func Email(_ http.ResponseWriter, r *http.Request) {
+	b, err := ioutil.ReadAll(r.Body)
+	log.Printf("body: %s, err: %v", b, err)
+}
+
 // HangeAdminSQL sends an SQL query and response with the result to Telegram.
+/*
 func HandleAdminSQL(_ http.ResponseWriter, r *http.Request) {
 	util.Bar()
 	logger := log.New(os.Stderr, "HandleAdminSQL", log.LstdFlags)
@@ -48,4 +54,4 @@ func HandleAdminSQLUpdate(logger Logger, update Update, telegram TelegramClient,
 	}
 
 	// TODO: respond in some way if applicable
-}
+}*/
