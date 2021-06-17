@@ -4,10 +4,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/nestoroprysk/TelegramBots/util"
 )
 
 // HangeAdminSQL sends an SQL query and response with the result to Telegram.
 func HandleAdminSQL(_ http.ResponseWriter, r *http.Request) {
+	util.Foo()
 	logger := log.New(os.Stderr, "HandleAdminSQL", log.LstdFlags)
 
 	env, err := MakeEnv()
