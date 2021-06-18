@@ -13,8 +13,7 @@ steps:
   - --memory=128MB
   - --max-instances=1
   - --allow-unauthenticated
-  - --clear-env-vars
-  - --set-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+  - --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
   secretEnv: ['ADMIN_BOT_TOKEN', 'BOT_SQL_ROOT_PASS','BOT_SQL_CONNECTION_NAME']
 availableSecrets:
   secretManager:
