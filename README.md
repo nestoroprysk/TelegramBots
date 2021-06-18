@@ -69,3 +69,4 @@ Sources:
 - Deploying functions
   - https://cloud.google.com/sdk/gcloud/reference/functions/deploy
   - https://cloud.google.com/functions/docs/env-var
+
