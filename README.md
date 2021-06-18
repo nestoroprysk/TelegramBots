@@ -21,7 +21,7 @@ Here are the first time only deploy steps:
     ```bash
     brew install google-cloud-sdk
     ```
-  - Initialize the project (this will prompt all the necessary information)
+  - Initialize the project with id like `telegram-bots-new` (this will prompt all the necessary information)
     ```bash
     gcloud init
     ```
@@ -55,6 +55,10 @@ Here are the first time only deploy steps:
   - Create the push to `master` trigger (click on the link to connect the repo and fill-in the desired `--repo-name` and `--repo-owner`)
     ```bash
     gcloud beta builds triggers create github --name=deploy --repo-name=TelegramBots --branch-pattern="^master$" --repo-owner=nestoroprysk --build-config=cloudbuild.yaml
+    ```
+  - Grant access to develop functions and access secrets with the project id you set up as input (replace `telegram-bots-new` with your id)
+    ```bash
+    python -m webbrowser https://console.cloud.google.com/cloud-build/settings/service-account?folder=&organizationId=&project=telegram-bots-new 
     ```
 
 Sources:
