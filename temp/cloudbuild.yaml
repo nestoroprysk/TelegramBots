@@ -12,12 +12,27 @@ steps:
   - gcloud
   - functions
   - deploy
-  - AdminSQL
-  - --entry-point=HandleAdminSQL
+  - Admin
+  - --entry-point=Admin
   - --region=europe-west3
   - --trigger-http
   - --runtime=go113
   - --timeout=5s
+  - --memory=128MB
+  - --max-instances=1
+  - --allow-unauthenticated
+  - --env-vars-file=.env.yaml
+  waitFor: ['build', 'test']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - Expenses
+  - --entry-point=Expenses
+  - --region=europe-west3
+  - --trigger-http
+  - --runtime=go113
   - --memory=128MB
   - --max-instances=1
   - --allow-unauthenticated
@@ -27,20 +42,8 @@ steps:
   - gcloud
   - functions
   - deploy
-  - Expenses
-  - --entry-point=HandleExpenses
-  - --region=europe-west3
-  - --trigger-http
-  - --runtime=go113
-  - --allow-unauthenticated
-  waitFor: ['build', 'test']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  args:
-  - gcloud
-  - functions
-  - deploy
-  - BuildResultEmailer 
-  - --entry-point=BuildResultEmail
+  - Email 
+  - --entry-point=Email
   - --region=europe-west3
   - --trigger-topic=cloud-builds
   - --runtime=go113
