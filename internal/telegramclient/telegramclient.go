@@ -1,4 +1,4 @@
-package bot
+package telegramclient
 
 import (
 	"io/ioutil"
@@ -8,21 +8,17 @@ import (
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
-
-// TelegramClientConfig configures a Telegram client.
-type TelegramClientConfig struct {
-	// Token is a telegram bot token.
-	Token string
-}
 
 // TelegramClient is an interface for sending text to chat.
 type TelegramClient interface {
-	Send(text string, chatID int) (response string, err error)
+	Send(text string) (response string, err error)
 }
 
 type telegramClient struct {
-	token string
+	token  string
+	chatID string
 }
 
 type mockTelegramClient struct {
@@ -30,27 +26,21 @@ type mockTelegramClient struct {
 }
 
 // NewTelegramClient creates a Telegram client.
-func NewTelegramClient(conf Telegram) TelegramClient {
+func New(conf env.Telegram, chatID int) TelegramClient {
 	return &telegramClient{
-		token: conf.Token,
-	}
-}
-
-// NewTelegramClient creates a mock Telegram client.
-func NewMockTelegramClient(f func(text string, chatID int) (response string, err error)) TelegramClient {
-	return &mockTelegramClient{
-		f: f,
+		token:  conf.Token,
+		chatID: strconv.Itoa(chatID),
 	}
 }
 
 // Send sends text to chat.
-func (tc telegramClient) Send(text string, chatID int) (string, error) {
-	log.Printf("sending %s to chat_id: %d", text, chatID)
+func (tc telegramClient) Send(text string) (string, error) {
+	log.Printf("sending %q to chat_id: %d", text, tc.chatID)
 
 	response, err := http.PostForm(
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
 		url.Values{
-			"chat_id": {strconv.Itoa(chatID)},
+			"chat_id": {tc.chatID},
 			"text":    {text},
 		},
 	)
@@ -69,9 +59,4 @@ func (tc telegramClient) Send(text string, chatID int) (string, error) {
 	log.Printf("body of the Telegram response: %s", body)
 
 	return string(body), nil
-}
-
-// Send mocks sending text to chat.
-func (tc mockTelegramClient) Send(text string, chatID int) (string, error) {
-	return tc.f(text, chatID)
 }

@@ -1,4 +1,4 @@
-package bot
+package sqlclient
 
 import (
 	"database/sql"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
 
 type SQLClient interface {
@@ -25,7 +26,7 @@ type sqlClient struct {
 // TODO: add mock SQL
 
 // NewSQLClient creates an SQL client.
-func NewSQLClient(conf DB) SQLClient {
+func New(conf env.DB) SQLClient {
 	return &sqlClient{
 		name:                   conf.Name,
 		user:                   conf.User,

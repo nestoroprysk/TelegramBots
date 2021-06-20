@@ -1,4 +1,4 @@
-package bot
+package telegram
 
 // Update is a Telegram object that the handler receives every time a user interacts with the bot.
 type Update struct {

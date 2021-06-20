@@ -1,9 +1,6 @@
-package bot
+package env
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
 
 // Env contains information from the global variables.
 type Env struct {
@@ -29,26 +26,18 @@ type DB struct {
 	InstanceConnectionName string
 }
 
-// Add email env
-
-// MakeEnv initializes the environment from environmental variables.
-func MakeEnv() (Env, error) {
-	result := Env{}
-	for res, key := range map[*string]string{
-		&result.Telegram.Token:            "TOKEN",
-		&result.DB.Name:                   "DB_NAME",
-		&result.DB.User:                   "DB_USER",
-		&result.DB.Password:               "DB_PASS",
-		&result.DB.InstanceConnectionName: "INSTANCE_CONNECTION_NAME",
+func (e Env) IsValid() error {
+	for _, field := range []string{
+		e.Telegram.Token,
+		e.DB.Name,
+		e.DB.User,
+		e.DB.Password,
+		e.DB.InstanceConnectionName,
 	} {
-		val, ok := os.LookupEnv(key)
-		if !ok || val == "" {
-			// TODO: capture
-			return Env{}, fmt.Errorf("environmental variable %q should be set to a non-empty value", key)
+		if field == "" {
+			return fmt.Errorf("%q should be set, yet it's empty", field)
 		}
-
-		*res = val
 	}
 
-	return result, nil
+	return nil
 }

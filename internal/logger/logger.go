@@ -1,4 +1,9 @@
-package bot
+package logger
+
+import (
+	"log"
+	"os"
+)
 
 type Logger interface {
 	Printf(format string, v ...interface{})
@@ -6,3 +11,7 @@ type Logger interface {
 }
 
 // TODO: add a mock logger
+
+func New() Logger {
+	return log.New(os.Stderr, "", log.LstdFlags)
+}
