@@ -60,6 +60,16 @@ Here are the first time only deploy steps:
     ```bash
     python -m webbrowser https://console.cloud.google.com/cloud-build/settings/service-account?folder=&organizationId=&project=telegram-bots-new 
     ```
+- Functions
+  - Deploy functions 
+    ```bash
+    git checkout master && touch drop-me && git add -A && git commit -m "Triggering the deploy of functions" && git push
+    ```
+  - Set Telegram hooks
+    ```bash
+    curl --data "url=$(gcloud functions describe Admin --region=europe-west3 --format=json | jq -r .httpsTrigger.url)" https://api.telegram.org/bot$ADMIN_BOT_TOKEN/SetWebhook
+    ```
+  - Add `allUsers` `Cloud Function Invoker` permissions to functions using the UI
 
 Sources:
 - Installing `gcloud` https://cloud.google.com/sdk/docs/install
