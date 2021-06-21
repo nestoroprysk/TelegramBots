@@ -1,18 +1,20 @@
 package cmd
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
-	"github.com/nestoroprysk/TelegramBots/internal/logger"
-	"github.com/nestoroprysk/TelegramBots/internal/parser"
+	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
+	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
+	"github.com/nestoroprysk/TelegramBots/internal/util"
 	"github.com/nestoroprysk/TelegramBots/internal/validator"
 )
 
-func Admin(_ http.ResponseWriter, r *http.Request) {
+func Admin(w http.ResponseWriter, r *http.Request) {
 	env := env.Env{
 		Telegram: env.Telegram{
 			Token: os.Getenv("ADMIN_BOT_TOKEN"),
@@ -25,40 +27,74 @@ func Admin(_ http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	l := logger.New()
 	v := validator.New()
+	resp := responder.New(w)
 
 	if err := v.Struct(env); err != nil {
-		l.Fatalf("failed to initialize the environment: %s", err.Error())
+		// TODO: Capture
+		resp.Respond(responder.Response{
+			Status:  responder.Error,
+			Data:    nil,
+			Message: fmt.Errorf("failed to initialize the environment: %w", err).Error(),
+		})
+		return
 	}
 
-	p := parser.New()
-	u, err := p.Update(r.Body)
+	u, err := telegram.Parse(r.Body)
 	if err != nil {
-		l.Printf("failed to parse the update: %s", err.Error())
+		resp.Respond(responder.Response{
+			Status:  responder.Fail,
+			Data:    []byte(fmt.Errorf("failed to parse the update: %w", err).Error()),
+			Message: "",
+		})
 		return
 	}
 
 	if err := v.Struct(u); err != nil {
-		l.Printf("failed to validate the update: %s", err.Error())
+		resp.Respond(responder.Response{
+			Status:  responder.Fail,
+			Data:    []byte(fmt.Errorf("failed to validate the update: %w", err).Error()),
+			Message: "",
+		})
 		return
 	}
 
-	s := sqlclient.New(env.DB)
-	text, err := s.Send(u.Message.Text)
+	s, err := sqlclient.New(env.DB)
 	if err != nil {
-		l.Printf("%s", err.Error())
-		text = err.Error()
+		// TODO: Capture
+		resp.Respond(responder.Response{
+			Status:  responder.Error,
+			Data:    nil,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	// TODO: parse SQL and error right away
+
+	var text string
+	result, err := s.Send(u.Message.Text)
+	if err == nil {
+		text = util.Format(result)
+	} else {
+		text = err.Error() // Even if invalid SQL, send it.
 	}
 
 	t := telegramclient.New(env.Telegram, u.Message.Chat.ID)
 	response, err := t.Send(text)
-	if err == nil {
-		l.Printf("successfully sent %q to %d: %s", text, u.Message.Chat.ID, response)
-	} else {
+	if err != nil {
 		// TODO: capture
-		l.Fatalf("failed to send %q to %d: %s", text, u.Message.Chat.ID, err.Error())
+		resp.Respond(responder.Response{
+			Status:  responder.Error,
+			Data:    nil,
+			Message: err.Error(),
+		})
+		return
 	}
 
-	// TODO: respond in some way
+	resp.Respond(responder.Response{
+		Status:  responder.Success,
+		Data:    response,
+		Message: "",
+	})
 }

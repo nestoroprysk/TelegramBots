@@ -1,5 +1,6 @@
 - Add statistics
 - Make all the infra a part of the cloudbuild
+- Add limits per category
 - Add all the types of tests https://cloud.google.com/functions/docs/testing/test-http#functions-testing-http-system-go
 - Add env vars to functions from code
 - Add limits to all the functions

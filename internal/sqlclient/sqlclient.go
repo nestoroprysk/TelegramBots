@@ -3,22 +3,24 @@ package sqlclient
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
 
+// SQLClient sends an SQL query and returns a response.
 type SQLClient interface {
-	Send(request string) (string, error)
+	Send(request string) (Response, error)
+}
+
+// Response is a generic SQL response.
+type Response struct {
+	Columns []string
+	Rows    [][]string
 }
 
 type sqlClient struct {
-	name                   string
-	user                   string
-	password               string
-	instanceConnectionName string
+	*sql.DB
 }
 
 // TODO: add interface assertion
@@ -26,72 +28,56 @@ type sqlClient struct {
 // TODO: add mock SQL
 
 // NewSQLClient creates an SQL client.
-func New(conf env.DB) SQLClient {
-	return &sqlClient{
-		name:                   conf.Name,
-		user:                   conf.User,
-		password:               conf.Password,
-		instanceConnectionName: conf.InstanceConnectionName,
-	}
-}
-
-// Send sends an SQL query.
-func (sc sqlClient) Send(query string) (string, error) {
-	log.Printf("executing %q", query)
-
+func New(conf env.DB) (SQLClient, error) {
 	const socketDir = "/cloudsql"
-
-	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", sc.user, sc.password, socketDir, sc.instanceConnectionName, sc.name)
-
-	// TODO: inject in-memory SQL for testing
+	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", conf.User, conf.Password, socketDir, conf.InstanceConnectionName, conf.Name)
 
 	db, err := sql.Open("mysql", dbURI)
 	if err != nil {
-		// TODO: capture
-		return "", fmt.Errorf("failed to connect to %q: %s", sc.name, err.Error())
+		return nil, fmt.Errorf("failed to connect to %q: %w", conf.Name, err)
 	}
 
-	rows, err := db.Query(query)
+	return &sqlClient{DB: db}, nil
+}
+
+// Send sends an SQL query.
+func (sc sqlClient) Send(query string) (Response, error) {
+	// TODO: use some library to parse query and validate if
+	//       if all is fine, select either query or exec
+	//       output different result for query or exec
+	//       or even input the parsed query
+	rows, err := sc.Query(query)
 	if err != nil {
-		return "", fmt.Errorf("failed to execute %q: %v", query, err.Error())
+		return Response{}, fmt.Errorf("failed to execute %q: %w", query, err)
 	}
 	defer rows.Close()
 
 	cols, err := rows.Columns()
 	if err != nil {
 		// TODO: capture
-		return "", fmt.Errorf("failed to get columns: %s", err.Error())
+		return Response{}, fmt.Errorf("failed to get columns: %w", err)
 	}
 
-	// TODO: move it out of here
-
-	var all []string
-	all = append(all, strings.Join(cols, " "))
-
-	rawResult := make([][]byte, len(cols))
-	result := make([]string, len(cols))
-
-	dest := make([]interface{}, len(cols)) // A temporary interface{} slice
-	for i, _ := range rawResult {
-		dest[i] = &rawResult[i] // Put pointers to each string in the interface slice
+	rawResponse := make([][]byte, len(cols))
+	dest := make([]interface{}, len(cols)) // A temporary interface{} slice.
+	for i, _ := range rawResponse {
+		dest[i] = &rawResponse[i] // Put pointers to each string in the interface slice.
 	}
 
+	result := Response{
+		Columns: cols,
+	}
 	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			return "", fmt.Errorf("rows.Scan: %v", err)
+		if err := rows.Scan(dest...); err != nil {
+			// TODO: capture
+			return Response{}, fmt.Errorf("failed to scan the result: %w", err)
 		}
 
-		for i, raw := range rawResult {
-			if raw == nil {
-				result[i] = "\\N"
-			} else {
-				result[i] = string(raw)
-			}
+		result.Rows = append(result.Rows, []string{})
+		for _, item := range rawResponse {
+			result.Rows[len(result.Rows)-1] = append(result.Rows[len(result.Rows)-1], string(item))
 		}
-
-		all = append(all, strings.Join(result, " "))
 	}
 
-	return strings.Join(all, "\n"), nil
+	return result, nil
 }

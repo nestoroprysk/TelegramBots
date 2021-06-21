@@ -1,5 +1,11 @@
 package telegram
 
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+)
+
 // Update is a Telegram object that the handler receives every time a user interacts with the bot.
 type Update struct {
 	Message Message `json:"message" validate:"required"`
@@ -14,4 +20,16 @@ type Message struct {
 // Chat indicates the conversation to which the message belongs.
 type Chat struct {
 	ID int `json:"id" validate:"gt=0"`
+}
+
+func Parse(body io.ReadCloser) (Update, error) {
+	defer body.Close()
+
+	var update Update
+	if err := json.NewDecoder(body).Decode(&update); err != nil {
+		err := fmt.Errorf("could not decode an incoming update: %w", err)
+		return Update{}, err
+	}
+
+	return update, nil
 }

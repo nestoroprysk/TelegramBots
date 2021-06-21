@@ -1,8 +1,8 @@
 package telegramclient
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,16 +13,12 @@ import (
 
 // TelegramClient is an interface for sending text to chat.
 type TelegramClient interface {
-	Send(text string) (response string, err error)
+	Send(text string) (response []byte, err error)
 }
 
 type telegramClient struct {
 	token  string
 	chatID string
-}
-
-type mockTelegramClient struct {
-	f func(text string, chatID int) (response string, err error)
 }
 
 // NewTelegramClient creates a Telegram client.
@@ -34,8 +30,10 @@ func New(conf env.Telegram, chatID int) TelegramClient {
 }
 
 // Send sends text to chat.
-func (tc telegramClient) Send(text string) (string, error) {
-	log.Printf("sending %q to chat_id: %d", text, tc.chatID)
+func (tc telegramClient) Send(text string) ([]byte, error) {
+	// TODO: inject HTTP client for testing
+	//       and repond just like the real telegram
+	//       for both success and error cases
 
 	response, err := http.PostForm(
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
@@ -45,18 +43,19 @@ func (tc telegramClient) Send(text string) (string, error) {
 		},
 	)
 	if err != nil {
-		log.Printf("error when posting text to the chat: %s", err.Error())
-		return "", err
+		err := fmt.Errorf("error when posting text to the chat %q: %w", tc.chatID, err)
+		return nil, err
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Printf("error in parsing the Telegram response: %s", err.Error())
-		return "", err
+		err := fmt.Errorf("error in parsing the Telegram response: %w", err)
+		return nil, err
 	}
 
-	log.Printf("body of the Telegram response: %s", body)
+	// TODO: consider parsing the response and checking if ok
+	// TODO: consider checking the exit code
 
-	return string(body), nil
+	return body, nil
 }
