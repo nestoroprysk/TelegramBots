@@ -22,6 +22,7 @@ type Chat struct {
 	ID int `json:"id" validate:"gt=0"`
 }
 
+// Parse parses the update and closes the body.
 func Parse(body io.ReadCloser) (Update, error) {
 	defer body.Close()
 
