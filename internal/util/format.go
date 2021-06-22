@@ -16,7 +16,11 @@ func Format(r sqlclient.Response) string {
 	t.AppendHeader(cols)
 
 	for _, row := range r.Rows {
-		t.AppendRow(row)
+		var items []interface{}
+		for _, i := range row {
+			items = append(items, i)
+		}
+		t.AppendRow(items)
 	}
 
 	return t.Render()
