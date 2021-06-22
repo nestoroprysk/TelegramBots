@@ -1,20 +1,23 @@
 package util
 
 import (
-	"strings"
-
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 func Format(r sqlclient.Response) string {
-	// TODO: use some pretty library
+	t := table.NewWriter()
 
-	var result []string
-	result = append(result, strings.Join(r.Columns, " "))
+	var cols []interface{}
+	for _, c := range r.Columns {
+		cols = append(cols, c)
+	}
+	t.AppendHeader(cols)
 
 	for _, row := range r.Rows {
-		result = append(result, strings.Join(row, " "))
+		t.AppendRow(row)
 	}
 
-	return strings.Join(result, "\n")
+	return t.Render()
 }

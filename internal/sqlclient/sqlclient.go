@@ -16,7 +16,7 @@ type SQLClient interface {
 // Response is a generic SQL response.
 type Response struct {
 	Columns []string
-	Rows    [][]string
+	Rows    [][]interface{}
 }
 
 type sqlClient struct {
@@ -58,7 +58,7 @@ func (sc sqlClient) Send(query string) (Response, error) {
 		return Response{}, fmt.Errorf("failed to get columns: %w", err)
 	}
 
-	rawResponse := make([][]byte, len(cols))
+	rawResponse := make([]interface{}, len(cols))
 	dest := make([]interface{}, len(cols)) // A temporary interface{} slice.
 	for i, _ := range rawResponse {
 		dest[i] = &rawResponse[i] // Put pointers to each string in the interface slice.
@@ -73,10 +73,7 @@ func (sc sqlClient) Send(query string) (Response, error) {
 			return Response{}, fmt.Errorf("failed to scan the result: %w", err)
 		}
 
-		result.Rows = append(result.Rows, []string{})
-		for _, item := range rawResponse {
-			result.Rows[len(result.Rows)-1] = append(result.Rows[len(result.Rows)-1], string(item))
-		}
+		result.Rows = append(result.Rows, rawResponse)
 	}
 
 	return result, nil
