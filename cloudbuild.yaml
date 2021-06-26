@@ -19,10 +19,31 @@ steps:
     --allow-unauthenticated
     --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
   secretEnv: ['ADMIN_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: "bash"
+  args:
+  - -c
+  - >
+    gcloud
+    functions
+    deploy
+    Expenses 
+    --entry-point=Expenses
+    --region=europe-west3
+    --trigger-http
+    --runtime=go113
+    --timeout=5s
+    --memory=128MB
+    --max-instances=1
+    --allow-unauthenticated
+    --update-env-vars=EXPENSES_BOT_TOKEN=$$EXPENSES_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+  secretEnv: ['EXPENSES_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
 availableSecrets:
   secretManager:
   - versionName: projects/$PROJECT_ID/secrets/ADMIN_BOT_TOKEN/versions/1
     env: 'ADMIN_BOT_TOKEN'
+  - versionName: projects/$PROJECT_ID/secrets/EXPENSES_BOT_TOKEN/versions/1
+    env: 'EXPENSES_BOT_TOKEN'
   - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_ROOT_PASS/versions/1
     env: 'BOT_SQL_ROOT_PASS'
   - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_CONNECTION_NAME/versions/1
