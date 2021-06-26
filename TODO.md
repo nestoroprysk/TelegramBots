@@ -48,3 +48,7 @@
 
 Ideas:
 - Try terraform for the infra initial setup
+
+# Bugs
+
+- Encode response in a normal way, for it's base64 encoded string for now
