@@ -23,5 +23,5 @@ func Format(r sqlclient.Response) string {
 		t.AppendRow(items)
 	}
 
-	return t.RenderHTML()
+	return t.RenderCSV()
 }
