@@ -38,8 +38,9 @@ func (tc telegramClient) Send(text string) ([]byte, error) {
 	response, err := http.PostForm(
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
 		url.Values{
-			"chat_id": {tc.chatID},
-			"text":    {text},
+			"chat_id":    {tc.chatID},
+			"text":       {text},
+			"parse_mode": {"markdown"},
 		},
 	)
 	if err != nil {

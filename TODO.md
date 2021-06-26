@@ -4,6 +4,7 @@
     - Migrate the expenses SQL to the new project
     - Drop the old project
     - Delete old bots
+- Make prettry output actually pretty https://core.telegram.org/bots/api#sendmessage
 - Resolve in-code TODOs
 - Stabilize
     - Cover all with unit tests
