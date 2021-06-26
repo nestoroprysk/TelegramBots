@@ -40,7 +40,7 @@ func (tc telegramClient) Send(text string) ([]byte, error) {
 		url.Values{
 			"chat_id":    {tc.chatID},
 			"text":       {text},
-			"parse_mode": {"markdown"},
+			"parse_mode": {"html"},
 		},
 	)
 	if err != nil {
