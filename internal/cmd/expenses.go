@@ -73,7 +73,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: execute the sql file from admin in the context to register a user if not registered
 
-	id := strconv.Itoa(u.Message.From.ID)
+	id := "expenses" + strconv.Itoa(u.Message.From.ID)
 	user := env.DB{
 		Name:                   id,
 		User:                   id,
