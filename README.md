@@ -68,6 +68,7 @@ Here are the first time only deploy steps:
   - Set Telegram hooks
     ```bash
     curl --data "url=$(gcloud functions describe Admin --region=europe-west3 --format=json | jq -r .httpsTrigger.url)" https://api.telegram.org/bot$ADMIN_BOT_TOKEN/SetWebhook
+    curl --data "url=$(gcloud functions describe Expenses --region=europe-west3 --format=json | jq -r .httpsTrigger.url)" https://api.telegram.org/bot$EXPENSES_BOT_TOKEN/SetWebhook
     ```
   - Add `allUsers` `Cloud Function Invoker` permissions to functions using the UI
 

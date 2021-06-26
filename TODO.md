@@ -1,9 +1,6 @@
 # Technical
 
-- Cut expenses
-    - Migrate the expenses SQL to the new project
-    - Drop the old project
-    - Delete old bots
+- React to error responses
 - Make prettry output actually pretty https://core.telegram.org/bots/api#sendmessage
 - Resolve in-code TODOs
 - Stabilize
