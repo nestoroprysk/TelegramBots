@@ -1,7 +1,15 @@
 ---
 steps:
+- name: 'mirror.gcr.io/library/golang'
+  args: ['make', 'build']
+  id: 'build'
+  waitFor: ['-']
+- name: 'mirror.gcr.io/library/golang'
+  args: ['make', 'test']
+  id: 'test'
+  waitFor: ['-']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  waitFor: []
+  waitFor: ['build', 'test']
   entrypoint: "bash"
   args:
   - -c
@@ -21,7 +29,7 @@ steps:
     --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
   secretEnv: ['ADMIN_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  waitFor: []
+  waitFor: ['build', 'test']
   entrypoint: "bash"
   args:
   - -c

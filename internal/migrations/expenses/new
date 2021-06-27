@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -euo pipefail
-
-file=$(date -u "+%Y:%m:%d_%H:%M:%S.sql")
-touch ${file}
-echo "Successfully created the new amazing file \"${file}\""
