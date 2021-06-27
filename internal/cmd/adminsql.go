@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -17,9 +15,6 @@ import (
 )
 
 func Admin(w http.ResponseWriter, r *http.Request) {
-	b, err := ioutil.ReadAll(r.Body)
-	log.Printf("(%s) (%s)", string(b), err)
-	return
 	env := env.Env{
 		Telegram: env.Telegram{
 			Token: os.Getenv("ADMIN_BOT_TOKEN"),

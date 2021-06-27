@@ -1,0 +1,38 @@
+{
+  "update_id": 131594192,
+  "my_chat_member": {
+    "chat": {
+      "id": 381126698,
+      "first_name": "Nestor",
+      "username": "npetro",
+      "type": "private"
+    },
+    "from": {
+      "id": 381126698,
+      "is_bot": false,
+      "first_name": "Nestor",
+      "username": "npetro",
+      "language_code": "en"
+    },
+    "date": 1624820012,
+    "old_chat_member": {
+      "user": {
+        "id": 1454136017,
+        "is_bot": true,
+        "first_name": "AdminBot",
+        "username": "GCEAdminBot"
+      },
+      "status": "kicked",
+      "until_date": 0
+    },
+    "new_chat_member": {
+      "user": {
+        "id": 1454136017,
+        "is_bot": true,
+        "first_name": "AdminBot",
+        "username": "GCEAdminBot"
+      },
+      "status": "member"
+    }
+  }
+}
