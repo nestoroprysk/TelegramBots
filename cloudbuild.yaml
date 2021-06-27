@@ -1,6 +1,7 @@
 ---
 steps:
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  waitFor: []
   entrypoint: "bash"
   args:
   - -c
@@ -20,6 +21,7 @@ steps:
     --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
   secretEnv: ['ADMIN_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  waitFor: []
   entrypoint: "bash"
   args:
   - -c
@@ -27,7 +29,7 @@ steps:
     gcloud
     functions
     deploy
-    Expenses 
+    Expenses
     --entry-point=Expenses
     --region=europe-west3
     --trigger-http
