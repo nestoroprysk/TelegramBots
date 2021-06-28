@@ -62,6 +62,8 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 	id := "expenses" + strconv.Itoa(u.Message.From.ID)
 
+	var text string
+
 	if u.Message.Text == "/start" {
 		_, err = sqlclient.New(e.DB)
 		if err != nil {
@@ -103,33 +105,33 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// TODO: Drop the user on stopping the bot
-	}
-
-	user := env.DB{
-		Name:                   id,
-		User:                   id,
-		InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
-	}
-
-	s, err := sqlclient.New(user)
-	if err != nil {
-		// TODO: Capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: err.Error(),
-		})
-		return
-	}
-
-	// TODO: parse SQL and error right away
-
-	var text string
-	result, err := s.Send(u.Message.Text)
-	if err == nil {
-		text = util.Format(result)
+		text = "Welcome! Type 'show tables' to begin..."
 	} else {
-		text = err.Error() // Even if invalid SQL, send it.
+
+		user := env.DB{
+			Name:                   id,
+			User:                   id,
+			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
+		}
+
+		s, err := sqlclient.New(user)
+		if err != nil {
+			// TODO: Capture
+			resp.Respond(responder.Response{
+				Status:  responder.Error,
+				Data:    nil,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		// TODO: parse SQL and error right away
+		result, err := s.Send(u.Message.Text)
+		if err == nil {
+			text = util.Format(result)
+		} else {
+			text = err.Error() // Even if invalid SQL, send it.
+		}
 	}
 
 	t := telegramclient.New(e.Telegram, u.Message.Chat.ID)
