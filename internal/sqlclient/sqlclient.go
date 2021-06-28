@@ -48,15 +48,8 @@ func (sc sqlClient) Exec(requests ...string) error {
 	}
 
 	for _, r := range requests {
-		stmt, err := tx.Prepare(r)
+		_, err := tx.Exec(r)
 		if err != nil {
-			tx.Rollback()
-			return err
-		}
-		defer stmt.Close()
-
-		if _, err := stmt.Exec(); err != nil {
-			tx.Rollback()
 			return err
 		}
 	}

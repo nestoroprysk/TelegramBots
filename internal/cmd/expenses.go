@@ -90,7 +90,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		if err := s.Exec(
 			fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
 			fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);", id),
-			fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'%%';", id),
+			fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%';", id),
 			fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
 		); err != nil {
 			// TODO: Capture
