@@ -60,20 +60,51 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = sqlclient.New(e.DB)
-	if err != nil {
-		// TODO: Capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: err.Error(),
-		})
-		return
+	id := "expenses" + strconv.Itoa(u.Message.From.ID)
+
+	if u.Message.Text == "/start" {
+		_, err = sqlclient.New(e.DB)
+		if err != nil {
+			// TODO: Capture
+			resp.Respond(responder.Response{
+				Status:  responder.Error,
+				Data:    nil,
+				Message: err.Error(),
+			})
+			return
+		}
+		// TODO: execute the sql file from admin in the context to register a user if not registered
+
+		s, err := sqlclient.New(e.DB)
+		if err != nil {
+			// TODO: Capture
+			resp.Respond(responder.Response{
+				Status:  responder.Error,
+				Data:    nil,
+				Message: err.Error(),
+			})
+			return
+		}
+
+		// TODO: Create a request type with input variables
+		if err := s.Exec(
+			fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
+			fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);", id),
+			fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'%%';", id),
+			fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
+		); err != nil {
+			// TODO: Capture
+			resp.Respond(responder.Response{
+				Status:  responder.Error,
+				Data:    nil,
+				Message: fmt.Errorf("failed to start the user (%s): %w", id, err).Error(),
+			})
+			return
+		}
+
+		// TODO: Drop the user on stopping the bot
 	}
 
-	// TODO: execute the sql file from admin in the context to register a user if not registered
-
-	id := "expenses" + strconv.Itoa(u.Message.From.ID)
 	user := env.DB{
 		Name:                   id,
 		User:                   id,

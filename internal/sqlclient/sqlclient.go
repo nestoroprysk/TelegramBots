@@ -11,6 +11,7 @@ import (
 // SQLClient sends an SQL query and returns a response.
 type SQLClient interface {
 	Send(request string) (Response, error)
+	Exec(requests ...string) error
 }
 
 // Response is a generic SQL response.
@@ -38,6 +39,29 @@ func New(conf env.DB) (SQLClient, error) {
 	}
 
 	return &sqlClient{DB: db}, nil
+}
+
+func (sc sqlClient) Exec(requests ...string) error {
+	tx, err := sc.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, r := range requests {
+		stmt, err := tx.Prepare(r)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 // Send sends an SQL query.
