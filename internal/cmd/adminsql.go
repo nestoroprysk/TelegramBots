@@ -32,51 +32,30 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 
 	if err := v.Struct(env); err != nil {
 		// TODO: Capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: fmt.Errorf("failed to initialize the environment: %w", err).Error(),
-		})
+		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
 
 	u, err := telegram.Parse(r.Body)
 	if err != nil {
-		resp.Respond(responder.Response{
-			Status:  responder.Fail,
-			Data:    []byte(fmt.Errorf("failed to parse the update: %w", err).Error()),
-			Message: "",
-		})
+		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
 		return
 	}
 
 	if err := v.Struct(u); err != nil {
-		resp.Respond(responder.Response{
-			Status:  responder.Fail,
-			Data:    []byte(fmt.Errorf("failed to validate the update: %w", err).Error()),
-			Message: "",
-		})
+		resp.Fail(fmt.Errorf("failed to validate the update: %w", err))
 		return
 	}
 
 	const adminID = 381126698 // TODO: Move it to a secret
 	if u.Message.From.ID != adminID {
-		resp.Respond(responder.Response{
-			Status:  responder.Fail,
-			Data:    []byte(fmt.Errorf("user id (%d) is not authenticated to call the function", u.Message.From.ID).Error()),
-			Message: "",
-		})
+		resp.Fail(fmt.Errorf("user id (%d) is not authenticated to call the function", u.Message.From.ID))
 		return
 	}
 
 	s, err := sqlclient.New(env.DB)
 	if err != nil {
-		// TODO: Capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: err.Error(),
-		})
+		resp.Error(err)
 		return
 	}
 
@@ -94,17 +73,9 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 	response, err := t.Send(text)
 	if err != nil {
 		// TODO: capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: err.Error(),
-		})
+		resp.Error(err)
 		return
 	}
 
-	resp.Respond(responder.Response{
-		Status:  responder.Success,
-		Data:    response,
-		Message: "",
-	})
+	resp.Succeed(response)
 }

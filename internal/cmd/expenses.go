@@ -33,30 +33,18 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 	if err := v.Struct(e); err != nil {
 		// TODO: Capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: fmt.Errorf("failed to initialize the environment: %w", err).Error(),
-		})
+		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
 
 	u, err := telegram.Parse(r.Body)
 	if err != nil {
-		resp.Respond(responder.Response{
-			Status:  responder.Fail,
-			Data:    []byte(fmt.Errorf("failed to parse the update: %w", err).Error()),
-			Message: "",
-		})
+		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
 		return
 	}
 
 	if err := v.Struct(u); err != nil {
-		resp.Respond(responder.Response{
-			Status:  responder.Fail,
-			Data:    []byte(fmt.Errorf("failed to validate the update: %w", err).Error()),
-			Message: "",
-		})
+		resp.Fail(fmt.Errorf("failed to validate the update: %w", err))
 		return
 	}
 
@@ -65,30 +53,14 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 	var text string
 
 	if u.Message.Text == "/start" {
-		_, err = sqlclient.New(e.DB)
-		if err != nil {
-			// TODO: Capture
-			resp.Respond(responder.Response{
-				Status:  responder.Error,
-				Data:    nil,
-				Message: err.Error(),
-			})
-			return
-		}
-		// TODO: execute the sql file from admin in the context to register a user if not registered
-
 		s, err := sqlclient.New(e.DB)
 		if err != nil {
 			// TODO: Capture
-			resp.Respond(responder.Response{
-				Status:  responder.Error,
-				Data:    nil,
-				Message: err.Error(),
-			})
+			resp.Error(err)
 			return
 		}
 
-		// TODO: Create a request type with input variables
+		// TODO: Refactore inline SQL in some way
 		if err := s.Exec(
 			fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
 			fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);", id),
@@ -96,18 +68,13 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
 		); err != nil {
 			// TODO: Capture
-			resp.Respond(responder.Response{
-				Status:  responder.Error,
-				Data:    nil,
-				Message: fmt.Errorf("failed to start the user (%s): %w", id, err).Error(),
-			})
+			resp.Error(fmt.Errorf("failed to start the user (%s): %w", id, err))
 			return
 		}
 
 		// TODO: Drop the user on stopping the bot
 		text = "Welcome! Type 'show tables' to begin..."
 	} else {
-
 		user := env.DB{
 			Name:                   id,
 			User:                   id,
@@ -117,11 +84,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		s, err := sqlclient.New(user)
 		if err != nil {
 			// TODO: Capture
-			resp.Respond(responder.Response{
-				Status:  responder.Error,
-				Data:    nil,
-				Message: err.Error(),
-			})
+			resp.Error(err)
 			return
 		}
 
@@ -138,17 +101,9 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 	response, err := t.Send(text)
 	if err != nil {
 		// TODO: capture
-		resp.Respond(responder.Response{
-			Status:  responder.Error,
-			Data:    nil,
-			Message: err.Error(),
-		})
+		resp.Error(err)
 		return
 	}
 
-	resp.Respond(responder.Response{
-		Status:  responder.Success,
-		Data:    response,
-		Message: "",
-	})
+	resp.Succeed(response)
 }

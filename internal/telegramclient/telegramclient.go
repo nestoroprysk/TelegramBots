@@ -13,7 +13,7 @@ import (
 
 // TelegramClient is an interface for sending text to chat.
 type TelegramClient interface {
-	Send(text string) (response []byte, err error)
+	Send(text string) (response string, err error)
 }
 
 type telegramClient struct {
@@ -30,7 +30,7 @@ func New(conf env.Telegram, chatID int) TelegramClient {
 }
 
 // Send sends text to chat.
-func (tc telegramClient) Send(text string) ([]byte, error) {
+func (tc telegramClient) Send(text string) (string, error) {
 	// TODO: inject HTTP client for testing
 	//       and repond just like the real telegram
 	//       for both success and error cases
@@ -44,18 +44,19 @@ func (tc telegramClient) Send(text string) ([]byte, error) {
 	)
 	if err != nil {
 		err := fmt.Errorf("error when posting text to the chat %q: %w", tc.chatID, err)
-		return nil, err
+		return "", err
 	}
 	defer response.Body.Close()
 
+	// TODO: respond with JSON
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		err := fmt.Errorf("error in parsing the Telegram response: %w", err)
-		return nil, err
+		return "", err
 	}
 
 	// TODO: consider parsing the response and checking if ok
 	// TODO: consider checking the exit code
 
-	return body, nil
+	return string(body), nil
 }
