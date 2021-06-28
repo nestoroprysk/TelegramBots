@@ -6,8 +6,8 @@ import (
 
 	"github.com/nestoroprysk/TelegramBots/internal/mock"
 	"github.com/nestoroprysk/TelegramBots/internal/responder"
-	. "github.com/onsi/ginkgo"
 
+	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 

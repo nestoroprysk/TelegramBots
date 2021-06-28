@@ -5,6 +5,7 @@ import (
 
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"

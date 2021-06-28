@@ -3,11 +3,11 @@ package validator_test
 import (
 	"testing"
 
+	"github.com/nestoroprysk/TelegramBots/internal/validator"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-
-	"github.com/nestoroprysk/TelegramBots/internal/validator"
 )
 
 func TestValidator(t *testing.T) {
