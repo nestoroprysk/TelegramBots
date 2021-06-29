@@ -1,6 +1,9 @@
 package mock
 
-import "bytes"
+import (
+	"bytes"
+	"io"
+)
 
 // ReadCloser is a mock io.ReadCloser.
 type ReadCloser struct {
@@ -9,8 +12,7 @@ type ReadCloser struct {
 	*bytes.Buffer
 }
 
-// TODO: rename New to Make
-// TODO: add interface assertion
+var _ io.ReadCloser = &ReadCloser{}
 
 // NewReadCloser creates a mock io.ReadCloser.
 func NewReadCloser(b []byte) ReadCloser {

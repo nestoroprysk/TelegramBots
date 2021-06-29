@@ -6,6 +6,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
+// Format formats an SQL response in a CSV format.
 func Format(r sqlclient.Response) string {
 	t := table.NewWriter()
 

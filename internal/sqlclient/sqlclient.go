@@ -23,11 +23,11 @@ type Response struct {
 	Rows    [][]string
 }
 
+var _ SQLClient = &sqlClient{}
+
 type sqlClient struct {
 	*sql.DB
 }
-
-// TODO: add interface assertion
 
 // TODO: add mock SQL
 

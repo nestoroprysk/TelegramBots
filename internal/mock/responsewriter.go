@@ -9,7 +9,7 @@ type ResponseWriter struct {
 	header  http.Header
 }
 
-// TODO: add interface implementation assert
+var _ http.ResponseWriter = &ResponseWriter{}
 
 // NewResponseWriter creates a mock response writer.
 func NewResponseWriter() ResponseWriter {

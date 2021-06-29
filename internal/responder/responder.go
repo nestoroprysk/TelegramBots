@@ -44,6 +44,8 @@ const (
 	Error = "error"
 )
 
+var _ Responder = &responder{}
+
 // responder implements the Responder interface.
 type responder struct {
 	http.ResponseWriter

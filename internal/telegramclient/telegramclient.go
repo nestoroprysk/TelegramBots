@@ -18,6 +18,8 @@ type TelegramClient interface {
 	Send(text string) (response string, err error)
 }
 
+var _ TelegramClient = &telegramClient{}
+
 type telegramClient struct {
 	token  string
 	chatID string
