@@ -64,11 +64,11 @@ func (tc telegramClient) Send(text string) (telegram.Response, error) {
 	}
 
 	if result.Ok == false {
-		return telegram.Response{}, fmt.Errorf("expecting ok; got %v", result)
+		return telegram.Response{}, fmt.Errorf("expecting ok; got %+v", result)
 	}
 
 	if result.ErrorCode != 0 {
-		return telegram.Response{}, fmt.Errorf("expecting zero exit code; got %v", result)
+		return telegram.Response{}, fmt.Errorf("expecting zero exit code; got %+v", result)
 	}
 
 	return result, nil
