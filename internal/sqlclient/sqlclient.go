@@ -8,6 +8,9 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
 
+// TODO: add unit tests
+// TODO: change API
+
 // SQLClient sends an SQL query and returns a response.
 type SQLClient interface {
 	Send(request string) (Response, error)

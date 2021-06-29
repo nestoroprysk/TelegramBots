@@ -11,6 +11,8 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
 
+// TODO: cover with unit tests
+
 // TelegramClient is an interface for sending text to chat.
 type TelegramClient interface {
 	Send(text string) (response string, err error)
