@@ -10,7 +10,7 @@ import (
 // Source: https://github.com/omniti-labs/jsend.
 type Responder interface {
 	// Succeed sets status to Success and Data to result.
-	Succeed(string) error
+	Succeed(interface{}) error
 	// Fail sets status to Fail and Message to result (e.g., invalid input or precondition failed).
 	Fail(error) error
 	// Error sets status to Error and Message to result (e.g., coding or infra issue).
@@ -27,7 +27,7 @@ type Response struct {
 	// May be success, fail, or error.
 	Status Status `json:"status"`
 	// Data is the success result.
-	Data string `json:"data"`
+	Data interface{} `json:"data"`
 	// Message is the result for either fail or error.
 	Message string `json:"message"`
 }
@@ -60,7 +60,7 @@ func New(w http.ResponseWriter) Responder {
 }
 
 // Succeed sets status to Success and Data to result.
-func (r responder) Succeed(b string) error {
+func (r responder) Succeed(b interface{}) error {
 	return r.respond(Response{
 		Status: Success,
 		Data:   b,

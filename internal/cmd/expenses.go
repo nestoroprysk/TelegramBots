@@ -37,7 +37,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := telegram.Parse(r.Body)
+	u, err := telegram.ParseUpdate(r.Body)
 	if err != nil {
 		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
 		return
@@ -97,7 +97,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	t := telegramclient.New(e.Telegram, u.Message.Chat.ID)
+	t := telegramclient.New(e.Telegram, u.Message.Chat.ID, http.DefaultClient)
 	response, err := t.Send(text)
 	if err != nil {
 		// TODO: capture

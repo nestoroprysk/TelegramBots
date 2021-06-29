@@ -33,7 +33,7 @@ var _ = It("Writes fail", func() {
 	Expect(rw.Header()).To(HaveLen(1))
 	Expect(rw.Header().Get("Content-Type")).To(Equal("application/json"))
 	Expect(rw.Written).To(HaveLen(1))
-	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"fail","data":"","message":"invalid input!!"}`))
+	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"fail","data":null,"message":"invalid input!!"}`))
 })
 
 var _ = It("Writes error", func() {
@@ -43,5 +43,5 @@ var _ = It("Writes error", func() {
 	Expect(rw.Header()).To(HaveLen(1))
 	Expect(rw.Header().Get("Content-Type")).To(Equal("application/json"))
 	Expect(rw.Written).To(HaveLen(1))
-	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"error","data":"","message":"bad connection"}`))
+	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"error","data":null,"message":"bad connection"}`))
 })

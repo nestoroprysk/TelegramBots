@@ -17,7 +17,7 @@ func TestTelegramt(t *testing.T) {
 
 var _ = It("Update errors nicely if fails to parse", func() {
 	rc := mock.NewReadCloser(nil)
-	_, err := telegram.Parse(&rc)
+	_, err := telegram.ParseUpdate(&rc)
 	Expect(err).To(MatchError("could not decode an incoming update: EOF"))
 })
 
@@ -42,7 +42,7 @@ var _ = It("Update gets parsed correctly", func() {
     "text": "select 9;"
   }
 	}`))
-	u, err := telegram.Parse(&rc)
+	u, err := telegram.ParseUpdate(&rc)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(u).To(Equal(telegram.Update{
 		Message: telegram.Message{

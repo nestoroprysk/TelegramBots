@@ -36,7 +36,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := telegram.Parse(r.Body)
+	u, err := telegram.ParseUpdate(r.Body)
 	if err != nil {
 		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
 		return
@@ -69,7 +69,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 		text = err.Error() // Even if invalid SQL, send it.
 	}
 
-	t := telegramclient.New(env.Telegram, u.Message.Chat.ID)
+	t := telegramclient.New(env.Telegram, u.Message.Chat.ID, http.DefaultClient)
 	response, err := t.Send(text)
 	if err != nil {
 		// TODO: capture
