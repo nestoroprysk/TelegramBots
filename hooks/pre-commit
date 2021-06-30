@@ -6,5 +6,6 @@ root="$(git rev-parse --show-toplevel)"
 
 cd ${root}
 
+make deps
 make build
 make test

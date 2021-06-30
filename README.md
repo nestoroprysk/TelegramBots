@@ -71,6 +71,10 @@ Here are the first time only deploy steps:
     curl --data "url=$(gcloud functions describe Expenses --region=europe-west3 --format=json | jq -r .httpsTrigger.url)" https://api.telegram.org/bot$EXPENSES_BOT_TOKEN/SetWebhook
     ```
   - Add `allUsers` `Cloud Function Invoker` permissions to functions using the UI
+- Install Hooks
+  - ```bash
+    make install-hooks
+    ```
 
 Sources:
 - Installing `gcloud` https://cloud.google.com/sdk/docs/install

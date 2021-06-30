@@ -6,5 +6,5 @@ branch="$(git branch --show-current)"
 if [ ${branch} == "master" ]
 then
     echo "Run the following command to stream logs from the most recent build:"
-    echo "  gcloud builds log --stream \$(gcloud builds list --limit=1 --format=json | jq -r  '.[0].id')"
+    echo "  \$ gcloud builds log --stream \$(gcloud builds list --limit=1 --format=json | jq -r  '.[0].id')"
 fi
