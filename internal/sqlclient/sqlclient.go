@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 )
 

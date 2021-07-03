@@ -1,3 +1,10 @@
+# Next
+
+- Run DB tests in the CI using docker-compose
+- Add more DB tests
+- Add capturing issues
+- Fix registering the new user
+
 # Technical
 
 - Implement close to a lot of interfaces to assert that all that should be executed actually if

@@ -1,6 +1,10 @@
 package sqlclient
 
-import "database/sql"
+import (
+	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
+)
 
 type mysqlDB struct {
 	db *sql.DB

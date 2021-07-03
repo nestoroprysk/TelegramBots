@@ -25,3 +25,18 @@ doc:
 .PHONY: install-hooks 
 install-hooks:
 	git config core.hooksPath hooks
+
+
+.PHONY: sql-start 
+sql-start:
+	make sql-stop || true
+	docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:5
+	@echo "Starting sql..."
+	@sleep 3
+	@echo "Run the following command to connect:"
+	@echo "  $$ mysql -P 3306 -u root -h 127.0.0.1 --password=root"
+
+.PHONY: sql-stop 
+sql-stop:
+	docker kill mysql || true
+	docker rm mysql

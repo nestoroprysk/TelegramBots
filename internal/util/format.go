@@ -1,6 +1,8 @@
 package util
 
 import (
+	"database/sql"
+
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -20,6 +22,10 @@ func Format(r sqlclient.Table) string {
 		var items []interface{}
 		for _, c := range r.Columns {
 			if i, ok := row[c]; ok {
+				if b, ok := i.(sql.RawBytes); ok {
+					i = string(b)
+				}
+
 				items = append(items, i)
 			}
 		}
