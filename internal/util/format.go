@@ -21,6 +21,10 @@ func Format(r sqlclient.Table) string {
 
 		for _, c := range r.Columns {
 			if i, ok := row[c]; ok {
+				if b, ok := i.([]byte); ok {
+					i = string(b) // Showing byte arrays as strings.
+				}
+
 				items = append(items, i)
 			}
 		}

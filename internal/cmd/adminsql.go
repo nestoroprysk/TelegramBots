@@ -69,10 +69,8 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 
 	var text string
 
-	switch stmt := stmt.(type) {
-	case *sqlparser.Select:
-		_ = stmt // Silence issues.
-
+	switch stmt.(type) {
+	case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
 		result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
 		if err == nil {
 			text = util.Format(result)
