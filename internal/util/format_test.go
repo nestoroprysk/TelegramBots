@@ -26,11 +26,11 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 			Rows: []map[string]interface{}{
 				{
 					"name": "John",
-					"age":  "20",
+					"age":  20,
 				},
 				{
 					"name": "Bart",
-					"age":  "15",
+					"age":  15,
 				},
 			},
 		},
@@ -50,7 +50,7 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 			Rows: []map[string]interface{}{
 				{
 					"name": "John",
-					"age":  "20",
+					"age":  20,
 				},
 			},
 		},
@@ -62,7 +62,7 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 			Rows: []map[string]interface{}{
 				{
 					"name": "John",
-					"age":  "20",
+					"age":  20,
 				},
 			},
 		},

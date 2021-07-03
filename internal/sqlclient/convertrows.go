@@ -23,29 +23,21 @@ func ConvertRows(rows Rows) (Table, error) {
 	result := Table{Columns: cols}
 
 	for rows.Next() {
-		// Create a slice of interface{}'s to represent each column,
-		// and a second slice to contain pointers to each item in the columns slice.
 		columns := make([]interface{}, len(cols))
 		for i := range columns {
+			// Populating with pointers to concrete types.
 			columns[i] = reflect.New(columnTypes[i].ScanType()).Interface()
 		}
 
-		columnPointers := make([]interface{}, len(cols))
-		for i := range columns {
-			columnPointers[i] = &columns[i]
-		}
-
 		// Scan the result into the column pointers...
-		if err := rows.Scan(columnPointers...); err != nil {
+		if err := rows.Scan(columns...); err != nil {
 			return Table{}, err
 		}
 
-		// Create our map, and retrieve the value for each column from the pointers slice,
-		// storing it in the map with the name of the column as the key.
 		m := make(map[string]interface{})
-		for i, colName := range cols {
-			val := columnPointers[i].(*interface{})
-			m[colName] = *val
+		for i, c := range cols {
+			// Getting values from pointers to types.
+			m[c] = reflect.ValueOf(columns[i]).Elem().Interface()
 		}
 
 		result.Rows = append(result.Rows, m)
