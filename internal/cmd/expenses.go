@@ -13,6 +13,7 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
 	"github.com/nestoroprysk/TelegramBots/internal/validator"
+	"github.com/xwb1989/sqlparser"
 )
 
 func Expenses(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +54,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 	var text string
 
 	if u.Message.Text == "/start" {
-		s, err := sqlclient.New(e.DB)
+		s, err := sqlclient.New(e.DB, sqlclient.NewOpener())
 		if err != nil {
 			// TODO: Capture
 			resp.Error(err)
@@ -61,12 +62,25 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// TODO: Refactore inline SQL in some way
-		if err := s.Exec(
-			fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
-			fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);", id),
-			fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%';", id),
-			fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
-		); err != nil {
+		_, err = s.Exec(
+			sqlclient.Query{
+				Statement: "CREATE DATABASE IF NOT EXISTS ?;",
+				Args:      []interface{}{id},
+			},
+			sqlclient.Query{
+				Statement: "CREATE TABLE IF NOT EXISTS ?.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);",
+				Args:      []interface{}{id},
+			},
+			sqlclient.Query{
+				Statement: "CREATE USER IF NOT EXISTS '?'@'%%';",
+				Args:      []interface{}{id},
+			},
+			sqlclient.Query{
+				Statement: "GRANT ALL PRIVILEGES ON ?.e TO '?'@'%%';",
+				Args:      []interface{}{id, id},
+			},
+		)
+		if err != nil {
 			// TODO: Capture
 			resp.Error(fmt.Errorf("failed to start the user (%s): %w", id, err))
 			return
@@ -81,19 +95,37 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
 		}
 
-		s, err := sqlclient.New(user)
+		s, err := sqlclient.New(user, sqlclient.NewOpener())
 		if err != nil {
 			// TODO: Capture
 			resp.Error(err)
 			return
 		}
 
-		// TODO: parse SQL and error right away
-		result, err := s.Send(u.Message.Text)
-		if err == nil {
-			text = util.Format(result)
-		} else {
-			text = err.Error() // Even if invalid SQL, send it.
+		stmt, err := sqlparser.Parse(u.Message.Text)
+		if err != nil {
+			resp.Fail(fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err))
+			return
+		}
+
+		switch stmt := stmt.(type) {
+		case *sqlparser.Select:
+			_ = stmt // Silence issues.
+
+			result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
+			if err == nil {
+				text = util.Format(result)
+			} else {
+				text = err.Error() // Even if invalid SQL, send it.
+			}
+		default:
+			result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
+			if err == nil {
+
+				text = fmt.Sprintf("Query OK, affected %d rows", result.RowsAffected)
+			} else {
+				text = err.Error() // Even if execution failed, send the resulting error.
+			}
 		}
 	}
 

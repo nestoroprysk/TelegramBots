@@ -12,6 +12,8 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
 	"github.com/nestoroprysk/TelegramBots/internal/validator"
+
+	"github.com/xwb1989/sqlparser"
 )
 
 func Admin(w http.ResponseWriter, r *http.Request) {
@@ -53,20 +55,38 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := sqlclient.New(env.DB)
+	s, err := sqlclient.New(env.DB, sqlclient.NewOpener())
 	if err != nil {
 		resp.Error(err)
 		return
 	}
 
-	// TODO: parse SQL and error right away
+	stmt, err := sqlparser.Parse(u.Message.Text)
+	if err != nil {
+		resp.Fail(fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err))
+		return
+	}
 
 	var text string
-	result, err := s.Send(u.Message.Text)
-	if err == nil {
-		text = util.Format(result)
-	} else {
-		text = err.Error() // Even if invalid SQL, send it.
+
+	switch stmt := stmt.(type) {
+	case *sqlparser.Select:
+		_ = stmt // Silence issues.
+
+		result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
+		if err == nil {
+			text = util.Format(result)
+		} else {
+			text = err.Error() // Even if invalid SQL, send it.
+		}
+	default:
+		result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
+		if err == nil {
+
+			text = fmt.Sprintf("Query OK, affected %d rows", result.RowsAffected)
+		} else {
+			text = err.Error() // Even if execution failed, send the resulting error.
+		}
 	}
 
 	t := telegramclient.New(env.Telegram, u.Message.Chat.ID, http.DefaultClient)

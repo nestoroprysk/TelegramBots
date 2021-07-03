@@ -7,7 +7,7 @@ import (
 )
 
 // Format formats an SQL response in a CSV format.
-func Format(r sqlclient.Response) string {
+func Format(r sqlclient.Table) string {
 	t := table.NewWriter()
 
 	var cols []interface{}
@@ -18,11 +18,16 @@ func Format(r sqlclient.Response) string {
 
 	for _, row := range r.Rows {
 		var items []interface{}
-		for _, i := range row {
-			items = append(items, i)
+
+		for _, c := range r.Columns {
+			if i, ok := row[c]; ok {
+				items = append(items, i)
+			}
 		}
+
 		t.AppendRow(items)
 	}
 
+	// TODO: Consider MD table
 	return t.RenderCSV()
 }
