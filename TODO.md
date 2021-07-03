@@ -50,3 +50,10 @@ Ideas:
 # Bugs
 
 - Encode response in a normal way, for it's base64 encoded string for now
+
+# Tests
+
+- Admin queries select 1
+- Admin executes insert
+- Expenses creates a new user
+- Expenses uses an already created user
