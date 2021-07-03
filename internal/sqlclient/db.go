@@ -3,22 +3,22 @@ package sqlclient
 import "database/sql"
 
 type mysqlDB struct {
-	*sql.DB
+	db *sql.DB
 }
 
 // Query executes a query and returns rows.
 func (db mysqlDB) Query(query string, args ...interface{}) (Rows, error) {
-	return db.Query(query, args...)
+	return db.db.Query(query, args...)
 }
 
 // Begin opens a transaction.
 func (db mysqlDB) Begin() (Tx, error) {
-	return db.Begin()
+	return db.db.Begin()
 }
 
 // Ping verifies that the connection is alive.
 func (db mysqlDB) Ping() error {
-	return db.DB.Ping()
+	return db.db.Ping()
 }
 
 var _ DB = &mysqlDB{}
@@ -31,6 +31,6 @@ func NewOpener() DBOpener {
 			return nil, err
 		}
 
-		return &mysqlDB{DB: db}, nil
+		return &mysqlDB{db: db}, nil
 	}
 }
