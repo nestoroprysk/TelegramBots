@@ -14,6 +14,8 @@ type Rows struct {
 	left []row
 }
 
+var _ sqlclient.Rows = &Rows{}
+
 // RowsOption defines rows.
 type RowsOption func(Rows) Rows
 
@@ -23,7 +25,11 @@ type row struct {
 	err  error
 }
 
-var _ sqlclient.Rows = &Rows{}
+type columnType struct {
+	t reflect.Type
+}
+
+var _ sqlclient.ColumnType = &columnType{}
 
 // NewRows creates mock rows defined by options.
 func NewRows(opts ...RowsOption) Rows {
@@ -96,4 +102,27 @@ func (r *Rows) Scan(dest ...interface{}) error {
 	r.left = r.left[1:]
 
 	return nil
+}
+
+/// ColumnTypes returns information on columns.
+func (r Rows) ColumnTypes() ([]sqlclient.ColumnType, error) {
+	if len(r.left) == 0 {
+		return nil, nil
+	}
+
+	if err := r.left[0].err; err != nil {
+		return nil, err
+	}
+
+	var result []sqlclient.ColumnType
+	for _, c := range r.left[0].cols {
+		result = append(result, &columnType{t: reflect.TypeOf(c)})
+	}
+
+	return result, nil
+}
+
+// ScanType returns a Go type suitable for scanning into using Rows.Scan.
+func (ct columnType) ScanType() reflect.Type {
+	return ct.t
 }

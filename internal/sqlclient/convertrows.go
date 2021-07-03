@@ -1,6 +1,8 @@
 package sqlclient
 
 import (
+	"reflect"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -13,14 +15,23 @@ func ConvertRows(rows Rows) (Table, error) {
 		return Table{}, err
 	}
 
+	columnTypes, err := rows.ColumnTypes()
+	if err != nil {
+		return Table{}, err
+	}
+
 	result := Table{Columns: cols}
 
 	for rows.Next() {
 		// Create a slice of interface{}'s to represent each column,
 		// and a second slice to contain pointers to each item in the columns slice.
 		columns := make([]interface{}, len(cols))
+		for i := range columns {
+			columns[i] = reflect.New(columnTypes[i].ScanType()).Interface()
+		}
+
 		columnPointers := make([]interface{}, len(cols))
-		for i, _ := range columns {
+		for i := range columns {
 			columnPointers[i] = &columns[i]
 		}
 

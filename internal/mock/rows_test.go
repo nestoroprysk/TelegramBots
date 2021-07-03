@@ -78,3 +78,26 @@ var _ = It("Scanning errors as expected", func() {
 	err = r.Scan(nil)
 	Expect(err).To(MatchError("oh no!"))
 })
+
+var _ = It("Column types error as expected", func() {
+	err := fmt.Errorf("oh no!")
+	r := mock.NewRows(mock.RowErr(err))
+	_, err = r.ColumnTypes()
+	Expect(err).To(MatchError("oh no!"))
+})
+
+var _ = It("Column types return empty list if no rows", func() {
+	r := mock.NewRows()
+	result, err := r.ColumnTypes()
+	Expect(err).NotTo(HaveOccurred())
+	Expect(result).To(BeEmpty())
+})
+
+var _ = It("Column types work just fine", func() {
+	r := mock.NewRows(mock.Row("Peter", 10))
+	result, err := r.ColumnTypes()
+	Expect(err).NotTo(HaveOccurred())
+	Expect(result).To(HaveLen(2))
+	Expect(result[0].ScanType().String()).To(Equal("string"))
+	Expect(result[1].ScanType().String()).To(Equal("int"))
+})

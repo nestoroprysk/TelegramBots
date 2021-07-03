@@ -3,6 +3,7 @@ package sqlclient
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nestoroprysk/TelegramBots/internal/env"
@@ -50,9 +51,15 @@ type Rows interface {
 	Next() bool
 	// Scan scans a row into dest.
 	Scan(dest ...interface{}) error
+	/// ColumnTypes returns information on columns.
+	ColumnTypes() ([]ColumnType, error)
 }
 
-var _ Rows = &sql.Rows{}
+// ColumnType provides information about columns.
+type ColumnType interface {
+	// ScanType returns a Go type suitable for scanning into using Rows.Scan.
+	ScanType() reflect.Type
+}
 
 // DB queries and begins transactions.
 type DB interface {

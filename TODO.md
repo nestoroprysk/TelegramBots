@@ -1,5 +1,6 @@
 # Technical
 
+- Implement close to a lot of interfaces to assert that all that should be executed actually if
 - React to error responses
 - Make prettry output actually pretty https://core.telegram.org/bots/api#sendmessage
 - Resolve in-code TODOs
