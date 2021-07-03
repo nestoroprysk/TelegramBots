@@ -1,6 +1,8 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -21,8 +23,8 @@ func Format(r sqlclient.Table) string {
 
 		for _, c := range r.Columns {
 			if i, ok := row[c]; ok {
-				if b, ok := i.([]byte); ok {
-					i = string(b) // Showing byte arrays as strings.
+				if s, ok := i.(fmt.Stringer); ok {
+					i = s.String() // Convert stringers to string.
 				}
 
 				items = append(items, i)
