@@ -18,13 +18,8 @@ func Format(r sqlclient.Table) string {
 
 	for _, row := range r.Rows {
 		var items []interface{}
-
 		for _, c := range r.Columns {
 			if i, ok := row[c]; ok {
-				if b, ok := i.([]byte); ok {
-					i = string(b)
-				}
-
 				items = append(items, i)
 			}
 		}
