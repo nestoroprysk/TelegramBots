@@ -1,68 +1,66 @@
 ---
 steps:
-- id: docker-compose-up
-  name: 'docker/compose:1.26.2'
-  args: ['-f', 'docker-compose.yml', 'up', '-d']
-  waitFor: ['-']
-- id: docker-compose
-  name: 'mysql'
-  name: 'docker/compose:1.26.2'
-  args: ['-f', 'docker-compose.yml', 'run', 'test']
-  waitFor: ['docker-compose-up']
-- name: 'mirror.gcr.io/library/golang'
-  args: ['make', 'build']
-  id: 'build'
-  waitFor: ['docker-compose']
-- name: 'mirror.gcr.io/library/golang'
-  id: 'test'
-  waitFor: ['docker-compose']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  waitFor: ['build', 'test']
-  entrypoint: "bash"
-  args:
-  - -c
-  - >
-    gcloud
-    functions
-    deploy
-    Admin
-    --entry-point=Admin
-    --region=europe-west3
-    --trigger-http
-    --runtime=go113
-    --timeout=5s
-    --memory=128MB
-    --max-instances=1
-    --allow-unauthenticated
-    --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
-  secretEnv: ['ADMIN_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  waitFor: ['build', 'test']
-  entrypoint: "bash"
-  args:
-  - -c
-  - >
-    gcloud
-    functions
-    deploy
-    Expenses
-    --entry-point=Expenses
-    --region=europe-west3
-    --trigger-http
-    --runtime=go113
-    --timeout=5s
-    --memory=128MB
-    --max-instances=1
-    --allow-unauthenticated
-    --update-env-vars=EXPENSES_BOT_TOKEN=$$EXPENSES_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
-  secretEnv: ['EXPENSES_BOT_TOKEN', 'BOT_SQL_ROOT_PASS', 'BOT_SQL_CONNECTION_NAME']
+  - id: docker-compose
+    name: "docker/compose:1.26.2"
+    args: ["-f", "docker-compose.yml", "up", "-d"]
+    waitFor: ["-"]
+  - id: test
+    name: "docker/compose:1.26.2"
+    args: ["-f", "docker-compose.yml", "run", "test"]
+    waitFor: ["docker-compose"]
+  - id: build
+    name: "mirror.gcr.io/library/golang"
+    args: ["make", "build"]
+    waitFor: ["docker-compose"]
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    waitFor: ["build", "test"]
+    entrypoint: "bash"
+    args:
+      - -c
+      - >
+        gcloud
+        functions
+        deploy
+        Admin
+        --entry-point=Admin
+        --region=europe-west3
+        --trigger-http
+        --runtime=go113
+        --timeout=5s
+        --memory=128MB
+        --max-instances=1
+        --allow-unauthenticated
+        --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+    secretEnv:
+      ["ADMIN_BOT_TOKEN", "BOT_SQL_ROOT_PASS", "BOT_SQL_CONNECTION_NAME"]
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    waitFor: ["build", "test"]
+    entrypoint: "bash"
+    args:
+      - -c
+      - >
+        gcloud
+        functions
+        deploy
+        Expenses
+        --entry-point=Expenses
+        --region=europe-west3
+        --trigger-http
+        --runtime=go113
+        --timeout=5s
+        --memory=128MB
+        --max-instances=1
+        --allow-unauthenticated
+        --update-env-vars=EXPENSES_BOT_TOKEN=$$EXPENSES_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+    secretEnv:
+      ["EXPENSES_BOT_TOKEN", "BOT_SQL_ROOT_PASS", "BOT_SQL_CONNECTION_NAME"]
 availableSecrets:
   secretManager:
-  - versionName: projects/$PROJECT_ID/secrets/ADMIN_BOT_TOKEN/versions/1
-    env: 'ADMIN_BOT_TOKEN'
-  - versionName: projects/$PROJECT_ID/secrets/EXPENSES_BOT_TOKEN/versions/1
-    env: 'EXPENSES_BOT_TOKEN'
-  - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_ROOT_PASS/versions/1
-    env: 'BOT_SQL_ROOT_PASS'
-  - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_CONNECTION_NAME/versions/1
-    env: 'BOT_SQL_CONNECTION_NAME'
+    - versionName: projects/$PROJECT_ID/secrets/ADMIN_BOT_TOKEN/versions/1
+      env: "ADMIN_BOT_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/EXPENSES_BOT_TOKEN/versions/1
+      env: "EXPENSES_BOT_TOKEN"
+    - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_ROOT_PASS/versions/1
+      env: "BOT_SQL_ROOT_PASS"
+    - versionName: projects/$PROJECT_ID/secrets/BOT_SQL_CONNECTION_NAME/versions/1
+      env: "BOT_SQL_CONNECTION_NAME"
