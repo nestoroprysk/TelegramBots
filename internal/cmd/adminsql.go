@@ -80,7 +80,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 	default:
 		result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
 		if err == nil {
-			text = fmt.Sprintf("Query OK, affected %d rows", result.RowsAffected)
+			text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
 		} else {
 			text = err.Error() // Even if execution failed, send the resulting error.
 		}

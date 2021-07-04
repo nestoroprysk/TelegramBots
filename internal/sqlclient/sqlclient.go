@@ -89,7 +89,7 @@ type sqlClient struct {
 	db DB
 }
 
-// NewSQLClient creates an SQL client.
+// New creates an SQL client.
 func New(conf env.DB, open DBOpener) (SQLClient, error) {
 	const socketDir = "/cloudsql"
 	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", conf.User, conf.Password, socketDir, conf.InstanceConnectionName, conf.Name)

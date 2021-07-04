@@ -69,3 +69,7 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 		"name\nJohn",
 	),
 )
+
+var _ = It("Formats exec result", func() {
+	Expect(util.FormatResult(sqlclient.Result{RowsAffected: 1})).To(Equal("Query OK, 1 row affected"))
+})

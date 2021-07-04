@@ -62,22 +62,19 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// TODO: Refactore inline SQL in some way
+
 		_, err = s.Exec(
 			sqlclient.Query{
-				Statement: "CREATE DATABASE IF NOT EXISTS ?;",
-				Args:      []interface{}{id},
+				Statement: fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
 			},
 			sqlclient.Query{
-				Statement: "CREATE TABLE IF NOT EXISTS ?.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);",
-				Args:      []interface{}{id},
+				Statement: fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.e (d date DEFAULT NULL, v int(10) unsigned DEFAULT NULL, c varchar(20) DEFAULT NULL);", id),
 			},
 			sqlclient.Query{
-				Statement: "CREATE USER IF NOT EXISTS '?'@'%%';",
-				Args:      []interface{}{id},
+				Statement: fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%';", id),
 			},
 			sqlclient.Query{
-				Statement: "GRANT ALL PRIVILEGES ON ?.e TO '?'@'%%';",
-				Args:      []interface{}{id, id},
+				Statement: fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
 			},
 		)
 		if err != nil {
@@ -108,10 +105,8 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		switch stmt := stmt.(type) {
-		case *sqlparser.Select:
-			_ = stmt // Silence issues.
-
+		switch stmt.(type) {
+		case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
 			result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
 			if err == nil {
 				text = util.Format(result)
@@ -121,8 +116,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		default:
 			result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
 			if err == nil {
-
-				text = fmt.Sprintf("Query OK, affected %d rows", result.RowsAffected)
+				text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
 			} else {
 				text = err.Error() // Even if execution failed, send the resulting error.
 			}

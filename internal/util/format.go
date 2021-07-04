@@ -2,13 +2,14 @@ package util
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
-// Format formats an SQL response in a CSV format.
+// Format formats an SQL query response in a CSV format.
 func Format(r sqlclient.Table) string {
 	t := table.NewWriter()
 
@@ -35,4 +36,9 @@ func Format(r sqlclient.Table) string {
 
 	// TODO: Consider MD table
 	return t.RenderCSV()
+}
+
+// FormatResult formats an SQL exec response.
+func FormatResult(r sqlclient.Result) string {
+	return fmt.Sprintf("Query OK, %d %s affected", r.RowsAffected, Pluralize("row", int(r.RowsAffected)))
 }

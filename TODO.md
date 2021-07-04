@@ -4,6 +4,7 @@
 - Add more DB tests
 - Add capturing issues
 - Fix registering the new user
+- Try the markdown table approach
 
 # Technical
 
