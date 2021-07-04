@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
+	"github.com/nestoroprysk/TelegramBots/internal/util"
 )
 
 // TODO: cover with unit tests
@@ -46,7 +47,7 @@ func (tc telegramClient) Send(text string) (telegram.Response, error) {
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
 		url.Values{
 			"chat_id":    {tc.chatID},
-			"text":       {"```" + text + "```"},
+			"text":       {util.FormatCode(text)},
 			"parse_mode": {"markdown"},
 		},
 	)

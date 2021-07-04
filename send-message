@@ -5,6 +5,6 @@ set -euo pipefail
 curl --header "Content-Type: application/json" \
   --request POST \
   --data "{
-      \"chat_id\": 381126698, \"text\": \"\`${1}\`\", \"parse_mode\":\"markdown\"
+      \"chat_id\": 381126698, \"text\": \"\`\`\`\n${1}\n\`\`\`\", \"parse_mode\":\"markdown\"
 }" \
   https://api.telegram.org/bot$ADMIN_BOT_TOKEN/sendMessage
