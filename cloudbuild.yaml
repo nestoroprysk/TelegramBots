@@ -6,7 +6,8 @@ steps:
   waitFor: ['-']
 - id: docker-compose
   name: 'mysql'
-  args: ['mysql', '-h', 'mysql', '-u', 'root', '--password=root',  '-e', '"select 1;"']
+  name: 'docker/compose:1.26.2'
+  args: ['-f', 'docker-compose.yml', 'run', 'test']
   waitFor: ['docker-compose-up']
 - name: 'mirror.gcr.io/library/golang'
   args: ['make', 'build']
