@@ -1,21 +1,28 @@
-// +build integration
-
 package sqlclient
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 )
 
 // NewIntegration creates an SQL client for integration tests.
 func NewIntegration() (SQLClient, error) {
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/information_schema")
+	host := "127.0.0.1"
+	if os.Getenv("CI") != "" {
+		host = "mysql"
+	}
+
+	db, err := sql.Open("mysql", fmt.Sprintf("root:root@tcp(%s:3306)/information_schema", host))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
+	result := mysqlDB{db: db}
+
+	if err := result.Ping(); err != nil {
 		return nil, err
 	}
 
-	return &sqlClient{db: mysqlDB{db: db}}, nil
+	return &sqlClient{db: result}, nil
 }

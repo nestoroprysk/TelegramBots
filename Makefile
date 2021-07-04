@@ -6,9 +6,13 @@ deps:
 build:
 	go build
 
-.PHONY: test 
+.PHONY: test
 test:
 	go test ./...
+
+.PHONY: test-ci
+test-ci: up
+	docker-compose run test
 
 .PHONY: cover
 cover:
@@ -26,17 +30,14 @@ doc:
 install-hooks:
 	git config core.hooksPath hooks
 
+host := $(if ${CI},"mysql","127.0.0.1")
 
-.PHONY: sql-start 
-sql-start:
-	make sql-stop || true
-	docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:5
-	@echo "Starting sql..."
-	@sleep 3
-	@echo "Run the following command to connect:"
-	@echo "  $$ mysql -P 3306 -u root -h 127.0.0.1 --password=root"
+.PHONY: up 
+up:
+	docker-compose up -d --remove-orphans mysql || true
+	./retry mysql -P 3306 -u root -h ${host} --password=root -e "select 1;"
+	@echo "Success!"
 
-.PHONY: sql-stop 
-sql-stop:
-	docker kill mysql || true
-	docker rm mysql
+.PHONY: down 
+down:
+	docker-compose down

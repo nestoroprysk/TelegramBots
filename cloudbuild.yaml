@@ -5,7 +5,6 @@ steps:
   id: 'build'
   waitFor: ['-']
 - name: 'mirror.gcr.io/library/golang'
-  args: ['make', 'test']
   id: 'test'
   waitFor: ['-']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

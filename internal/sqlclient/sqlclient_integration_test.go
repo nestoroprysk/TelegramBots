@@ -1,5 +1,3 @@
-// +build integration
-
 package sqlclient_test
 
 import (
@@ -32,8 +30,7 @@ type Result struct {
 
 var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 	db, err := sqlclient.NewIntegration()
-	Expect(err).NotTo(HaveOccurred())
-
+	Expect(err).NotTo(HaveOccurred(), "run `make up` to spin a mysql instance")
 	defer func() {
 		_, err = db.Exec(e.Cleanup...)
 		Expect(err).NotTo(HaveOccurred())

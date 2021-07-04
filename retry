@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -euo pipefail
+
+for i in $(seq 1 10); do "$@"  && s=0 && break || s=$? && sleep 3; done; (exit $s)
