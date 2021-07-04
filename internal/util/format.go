@@ -34,8 +34,7 @@ func Format(r sqlclient.Table) string {
 		t.AppendRow(items)
 	}
 
-	// TODO: Consider MD table
-	return t.RenderCSV()
+	return t.Render()
 }
 
 // FormatResult formats an SQL exec response.

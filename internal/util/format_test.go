@@ -34,7 +34,12 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 				},
 			},
 		},
-		"name,age\nJohn,20\nBart,15",
+		`+------+-----+
+| NAME | AGE |
++------+-----+
+| John |  20 |
+| Bart |  15 |
++------+-----+`,
 	),
 	Entry("Formats empty response",
 		sqlclient.Table{},
@@ -42,7 +47,10 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 	),
 	Entry("Formats column only response",
 		sqlclient.Table{Columns: []string{"a", "b"}},
-		"a,b",
+		`+---+---+
+| A | B |
++---+---+
++---+---+`,
 	),
 	Entry("Formats response with not enough columns in row",
 		sqlclient.Table{
@@ -54,7 +62,11 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 				},
 			},
 		},
-		"name,age,date\nJohn,20,",
+		`+------+-----+------+
+| NAME | AGE | DATE |
++------+-----+------+
+| John |  20 |      |
++------+-----+------+`,
 	),
 	Entry("Formats response with too many columns in row",
 		sqlclient.Table{
@@ -66,7 +78,11 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 				},
 			},
 		},
-		"name\nJohn",
+		`+------+
+| NAME |
++------+
+| John |
++------+`,
 	),
 )
 
