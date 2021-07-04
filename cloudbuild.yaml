@@ -1,12 +1,16 @@
 ---
 steps:
+- id: docker-compose
+  name: 'docker/compose:1.26.2'
+  args: ['-f', 'docker-compose.yml', 'up', '-d', 'mysql']
+  waitFor: ['-']
 - name: 'mirror.gcr.io/library/golang'
   args: ['make', 'build']
   id: 'build'
-  waitFor: ['-']
+  waitFor: ['docker-compose']
 - name: 'mirror.gcr.io/library/golang'
   id: 'test'
-  waitFor: ['-']
+  waitFor: ['docker-compose']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   waitFor: ['build', 'test']
   entrypoint: "bash"
