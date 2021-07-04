@@ -34,6 +34,7 @@ host := $(if ${CI},"mysql","127.0.0.1")
 
 .PHONY: up 
 up:
+	docker network create cloudbuild || true
 	docker-compose up -d --remove-orphans mysql || true
 	./retry mysql -P 3306 -u root -h ${host} --password=root -e "select 1;"
 	@echo "Success!"

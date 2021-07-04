@@ -13,3 +13,7 @@ services:
     command: ["make", "test"]
     environment:
       CI: "true"
+networks:
+  default:
+    external:
+      name: cloudbuild
