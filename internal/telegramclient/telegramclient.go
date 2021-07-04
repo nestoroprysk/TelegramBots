@@ -46,7 +46,7 @@ func (tc telegramClient) Send(text string) (telegram.Response, error) {
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
 		url.Values{
 			"chat_id":    {tc.chatID},
-			"text":       {text},
+			"text":       {"```" + text + "```"},
 			"parse_mode": {"markdown"},
 		},
 	)
