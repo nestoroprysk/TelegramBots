@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/responder"
@@ -19,7 +20,8 @@ import (
 func Admin(w http.ResponseWriter, r *http.Request) {
 	env := env.Env{
 		Telegram: env.Telegram{
-			Token: os.Getenv("ADMIN_BOT_TOKEN"),
+			Token:   os.Getenv("ADMIN_BOT_TOKEN"),
+			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
 		DB: env.DB{
 			Name:                   "information_schema",
@@ -49,8 +51,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const adminID = 381126698 // TODO: Move it to a secret
-	if u.Message.From.ID != adminID {
+	if u.Message.From.ID != env.AdminID {
 		resp.Fail(fmt.Errorf("user id (%d) is not authenticated to call the function", u.Message.From.ID))
 		return
 	}

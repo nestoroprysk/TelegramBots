@@ -6,6 +6,7 @@
 
 # Technical
 
+- Fix generating docs
 - Add prettier and formatter as a hook
 - Collect statistics on at least, success, fail, and error
 - Resolve in-code TODOs

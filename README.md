@@ -94,3 +94,4 @@ Sources:
 
 Notes:
 - The project uses go@1.13 for this is the limitation by cloud function
+- Make sure to replace ADMIN_ID with the appropriate ID in the `cloudbuild.yaml`

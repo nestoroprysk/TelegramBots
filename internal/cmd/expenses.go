@@ -19,7 +19,8 @@ import (
 func Expenses(w http.ResponseWriter, r *http.Request) {
 	e := env.Env{
 		Telegram: env.Telegram{
-			Token: os.Getenv("EXPENSES_BOT_TOKEN"),
+			Token:   os.Getenv("EXPENSES_BOT_TOKEN"),
+			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
 		DB: env.DB{
 			Name:                   "information_schema",

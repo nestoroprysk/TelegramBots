@@ -35,6 +35,7 @@ steps:
         --max-instances=1
         --allow-unauthenticated
         --update-env-vars=ADMIN_BOT_TOKEN=$$ADMIN_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+    env: ["ADMIN_ID=381126698"]
     secretEnv:
       ["ADMIN_BOT_TOKEN", "BOT_SQL_ROOT_PASS", "BOT_SQL_CONNECTION_NAME"]
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -56,6 +57,7 @@ steps:
         --max-instances=1
         --allow-unauthenticated
         --update-env-vars=EXPENSES_BOT_TOKEN=$$EXPENSES_BOT_TOKEN,BOT_SQL_ROOT_PASS=$$BOT_SQL_ROOT_PASS,BOT_SQL_CONNECTION_NAME=$$BOT_SQL_CONNECTION_NAME
+    env: ["ADMIN_ID=381126698"]
     secretEnv:
       ["EXPENSES_BOT_TOKEN", "BOT_SQL_ROOT_PASS", "BOT_SQL_CONNECTION_NAME"]
 availableSecrets:

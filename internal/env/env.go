@@ -10,6 +10,8 @@ type Env struct {
 type Telegram struct {
 	// Token is a Telegram bot token.
 	Token string `validate:"required"`
+	// AdminID is an ID of the admin Telegram user.
+	AdminID int `validate:"gt=0"`
 }
 
 // DB is the SQL environment.
