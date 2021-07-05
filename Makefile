@@ -8,7 +8,7 @@ build:
 
 .PHONY: test
 test:
-	go test ./...
+	go test -count=1 ./...
 
 .PHONY: test-ci
 test-ci: up
@@ -30,15 +30,14 @@ doc:
 install-hooks:
 	git config core.hooksPath hooks
 
-host := $(if ${CI},"mysql","127.0.0.1")
-
 .PHONY: up 
 up:
 	docker network create cloudbuild || true
 	docker-compose up -d --remove-orphans mysql || true
-	./retry mysql -P 3306 -u root -h ${host} --password=root -e "select 1;"
+	./retry mysql -P 3306 -u root -h "127.0.0.1" --password=root -e "select 1;"
 	@echo "Success!"
 
 .PHONY: down 
 down:
 	docker-compose down
+	docker network delete cloudbuild || true

@@ -88,3 +88,5 @@ Sources:
 - Deploying functions
   - https://cloud.google.com/sdk/gcloud/reference/functions/deploy
   - https://cloud.google.com/functions/docs/env-var
+- Using docker-compose in cloudbuild
+  - https://threedots.tech/post/running-integration-tests-on-google-cloud-build/

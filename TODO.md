@@ -1,5 +1,6 @@
 # Next
 
+- Make sure that if tests fail in CI, the pipeline fails
 - Run DB tests in the CI using docker-compose
 - Add capturing issues
 - Add unit tests for the cmd package
