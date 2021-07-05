@@ -1,20 +1,20 @@
----
 steps:
   - id: build
-    name: "mirror.gcr.io/library/golang"
+    name: "golang:1.13"
     args: ["make", "build"]
     waitFor: ["-"]
   - id: docker-compose-up
     name: "docker/compose:1.26.2"
-    args: ["-f", "docker-compose.yml", "up", "-d", "mysql"]
+    args: ["-f", "docker-compose.yaml", "-f", "docker-compose.ci.yaml", "up", "-d"]
     waitFor: ["-"]
   - id: test
-    name: "docker/compose:1.26.2"
-    args: ["-f", "docker-compose.yml", "run", "test"]
+    name: "golang:1.13"
+    args: ["make", "test"]
+    env: ["CI=true"]
     waitFor: ["docker-compose-up"]
   - id: docker-compose-down
     name: "docker/compose:1.26.2"
-    args: ["-f", "docker-compose.yml", "down"]
+    args: ["-f", "docker-compose.yml", "-f", "docker-compose.ci.yaml", "down"]
     waitFor: ["test"]
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     waitFor: ["build", "test"]

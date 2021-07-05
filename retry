@@ -2,4 +2,15 @@
 
 set -euo pipefail
 
-for i in $(seq 1 10); do "$@"  && s=0 && break || s=$? && sleep 3; done; (exit $s)
+n=0
+until [ "$n" -ge 15 ]
+do
+    "$@" >/dev/null 2>&1 && echo "" && exit 0 || true
+    n=$((n+1))
+    echo -n "."
+    sleep 1
+done
+
+echo -e "\nFailed to execute the following command:"
+echo "  \$ $@"
+exit 1

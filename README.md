@@ -90,3 +90,7 @@ Sources:
   - https://cloud.google.com/functions/docs/env-var
 - Using docker-compose in cloudbuild
   - https://threedots.tech/post/running-integration-tests-on-google-cloud-build/
+  - https://github.com/GoogleCloudPlatform/cloud-builders-community/tree/master/docker-compose
+
+Notes:
+- The project uses go@1.13 for this is the limitation by cloud function

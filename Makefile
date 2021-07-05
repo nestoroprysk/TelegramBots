@@ -10,10 +10,6 @@ build:
 test:
 	go test -count=1 ./...
 
-.PHONY: test-ci
-test-ci: up
-	docker-compose run test
-
 .PHONY: cover
 cover:
 	go test ./... -coverprofile cover.out
@@ -32,12 +28,11 @@ install-hooks:
 
 .PHONY: up 
 up:
-	docker network create cloudbuild || true
-	docker-compose up -d --remove-orphans mysql || true
-	./retry mysql -P 3306 -u root -h "127.0.0.1" --password=root -e "select 1;"
+	@docker-compose up -d --remove-orphans
+	@printf "Making sure that the environment is ready..."
+	@./retry mysql -P 3306 -u root -h "127.0.0.1" --password=root -e "select 1;"
 	@echo "Success!"
 
 .PHONY: down 
 down:
-	docker-compose down
-	docker network delete cloudbuild || true
+	@docker-compose down
