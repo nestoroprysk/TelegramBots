@@ -1,10 +1,8 @@
 # Next
 
-- Make sure that if tests fail in CI, the pipeline fails
-- Run DB tests in the CI using docker-compose
 - Add capturing issues
 - Add unit tests for the cmd package
-- Add integration tests (with the mock telegram and mysql DB) for the cmd package
+- Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
 
 # Technical
 

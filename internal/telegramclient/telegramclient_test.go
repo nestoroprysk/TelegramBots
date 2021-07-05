@@ -20,7 +20,6 @@ func TestTelegramClient(t *testing.T) {
 }
 
 var _ = It("Errors nicely if post fails", func() {
-	Expect(true).To(BeFalse())
 	conf := env.Telegram{}
 	chatID := 10
 	p := mock.NewPoster(mock.PostFormError(fmt.Errorf("oh no!")))
