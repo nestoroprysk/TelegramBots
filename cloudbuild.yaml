@@ -5,7 +5,7 @@ steps:
     waitFor: ["-"]
   - id: docker-compose-up
     name: "docker/compose:1.26.2"
-    args: ["-f", "docker-compose.yaml", "-f", "docker-compose.ci.yaml", "up", "-d"]
+    args: ["--ansi=never", "-f", "docker-compose.yaml", "-f", "docker-compose.ci.yaml", "up", "-d"]
     waitFor: ["-"]
   - id: test
     name: "golang:1.13"
@@ -14,7 +14,7 @@ steps:
     waitFor: ["docker-compose-up"]
   - id: docker-compose-down
     name: "docker/compose:1.26.2"
-    args: ["-f", "docker-compose.yml", "-f", "docker-compose.ci.yaml", "down"]
+    args: ["--ansi=never", "-f", "docker-compose.yaml", "-f", "docker-compose.ci.yaml", "down"]
     waitFor: ["test"]
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     waitFor: ["build", "test"]
