@@ -58,33 +58,38 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 
 	s, err := sqlclient.New(env.DB, sqlclient.NewOpener())
 	if err != nil {
+		// TODO: Capture
 		resp.Error(err)
-		return
-	}
-
-	stmt, err := sqlparser.Parse(u.Message.Text)
-	if err != nil {
-		resp.Fail(fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err))
 		return
 	}
 
 	var text string
 
-	switch stmt.(type) {
-	case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
-		result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
-		if err == nil {
+	stmt, err := sqlparser.Parse(u.Message.Text)
+	if err == nil {
+		switch stmt.(type) {
+		case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
+			result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
+			if err != nil {
+				// TODO: Capture
+				resp.Error(err)
+				return
+			}
+
 			text = util.Format(result)
-		} else {
-			text = err.Error() // Even if invalid SQL, send it.
-		}
-	default:
-		result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
-		if err == nil {
+		default:
+			result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
+			if err != nil {
+				// TODO: Capture
+				resp.Error(err)
+				return
+			}
+
 			text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
-		} else {
-			text = err.Error() // Even if execution failed, send the resulting error.
 		}
+	} else {
+		err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+		text = err.Error() // Hint user that the SQL statement is not ok.
 	}
 
 	t := telegramclient.New(env.Telegram, u.Message.Chat.ID, http.DefaultClient)
