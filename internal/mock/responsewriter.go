@@ -6,7 +6,9 @@ import "net/http"
 type ResponseWriter struct {
 	// Written lists write calls.
 	Written [][]byte
-	header  http.Header
+	// StatusCode is HTTP status code.
+	StatusCode int
+	header     http.Header
 }
 
 var _ http.ResponseWriter = &ResponseWriter{}
@@ -29,7 +31,7 @@ func (rw *ResponseWriter) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-// WriteHeader panics for it's not implemented.
-func (rw ResponseWriter) WriteHeader(_ int) {
-	panic("unimplemented")
+// WriteHeader sets a status code
+func (rw *ResponseWriter) WriteHeader(statusCode int) {
+	rw.StatusCode = statusCode
 }

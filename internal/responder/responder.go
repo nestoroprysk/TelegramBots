@@ -30,6 +30,8 @@ type Response struct {
 	Data interface{} `json:"data"`
 	// Message is the result for either fail or error.
 	Message string `json:"message"`
+	// StatusCode is HTTP status code.
+	StatusCode int `json:"status_code"`
 }
 
 // Status is a response status.
@@ -60,31 +62,38 @@ func New(w http.ResponseWriter) Responder {
 }
 
 // Succeed sets status to Success and Data to result.
+// It returns http.StatusOK.
 func (r responder) Succeed(b interface{}) error {
 	return r.respond(Response{
-		Status: Success,
-		Data:   b,
+		Status:     Success,
+		Data:       b,
+		StatusCode: http.StatusOK,
 	})
 }
 
 // Fail sets status to Fail and Message to result (e.g., invalid input or precondition failed).
+// It returns http.StatusBadRequest.
 func (r responder) Fail(err error) error {
 	return r.respond(Response{
-		Status:  Fail,
-		Message: err.Error(),
+		Status:     Fail,
+		Message:    err.Error(),
+		StatusCode: http.StatusBadRequest,
 	})
 }
 
 // Error sets status to Error and Message to result (e.g., coding or infra issue).
+// It returns http.StatusInternalServerError.
 func (r responder) Error(err error) error {
 	return r.respond(Response{
-		Status:  Error,
-		Message: err.Error(),
+		Status:     Error,
+		Message:    err.Error(),
+		StatusCode: http.StatusInternalServerError,
 	})
 }
 
 // respond writes to the response writer using the JSON encoder.
 func (r responder) respond(i Response) error {
 	r.Header().Set("Content-Type", "application/json")
+	r.WriteHeader(i.StatusCode)
 	return json.NewEncoder(r).Encode(i)
 }

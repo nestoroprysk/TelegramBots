@@ -2,6 +2,7 @@ package responder_test
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/nestoroprysk/TelegramBots/internal/mock"
@@ -23,7 +24,8 @@ var _ = It("Writes success", func() {
 	Expect(rw.Header()).To(HaveLen(1))
 	Expect(rw.Header().Get("Content-Type")).To(Equal("application/json"))
 	Expect(rw.Written).To(HaveLen(1))
-	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"success","data":"Hooray!","message":""}`))
+	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"success","data":"Hooray!","message":"","status_code": 200}`))
+	Expect(rw.StatusCode).To(Equal(http.StatusOK))
 })
 
 var _ = It("Writes fail", func() {
@@ -33,7 +35,8 @@ var _ = It("Writes fail", func() {
 	Expect(rw.Header()).To(HaveLen(1))
 	Expect(rw.Header().Get("Content-Type")).To(Equal("application/json"))
 	Expect(rw.Written).To(HaveLen(1))
-	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"fail","data":null,"message":"invalid input!!"}`))
+	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"fail","data":null,"message":"invalid input!!","status_code": 400}`))
+	Expect(rw.StatusCode).To(Equal(http.StatusBadRequest))
 })
 
 var _ = It("Writes error", func() {
@@ -43,5 +46,6 @@ var _ = It("Writes error", func() {
 	Expect(rw.Header()).To(HaveLen(1))
 	Expect(rw.Header().Get("Content-Type")).To(Equal("application/json"))
 	Expect(rw.Written).To(HaveLen(1))
-	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"error","data":null,"message":"bad connection"}`))
+	Expect(string(rw.Written[0])).To(MatchJSON(`{"status":"error","data":null,"message":"bad connection","status_code": 500}`))
+	Expect(rw.StatusCode).To(Equal(http.StatusInternalServerError))
 })

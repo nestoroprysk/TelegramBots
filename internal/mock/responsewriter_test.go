@@ -1,6 +1,7 @@
 package mock_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/nestoroprysk/TelegramBots/internal/mock"
@@ -31,7 +32,9 @@ var _ = It("Write adds a line to written and returns its len", func() {
 	Expect(rw.Written[0]).To(BeEquivalentTo("abc"))
 })
 
-var _ = It("WriteHeader panics for it's not implemented", func() {
+var _ = It("WriteHeader sets status code", func() {
 	rw := mock.NewResponseWriter()
-	Expect(func() { rw.WriteHeader(200) }).To(PanicWith("unimplemented"))
+	Expect(rw.StatusCode).To(BeZero())
+	rw.WriteHeader(http.StatusOK)
+	Expect(rw.StatusCode).To(Equal(http.StatusOK))
 })
