@@ -105,23 +105,20 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			switch stmt.(type) {
 			case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
 				result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
-				if err != nil {
-					// TODO: Capture
-					resp.Error(err)
-					return
+				if err == nil {
+					text = util.Format(result)
+				} else {
+					err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+					text = err.Error() // Hint user that the SQL statement is not ok.
 				}
-
-				text = util.Format(result)
 			default:
 				result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
-				if err != nil {
-					// TODO: Capture
-					resp.Error(err)
-					return
+				if err == nil {
+					text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
+				} else {
+					err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+					text = err.Error() // Hint user that the SQL statement is not ok.
 				}
-
-				// TODO: Add it to the format package
-				text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
 			}
 		} else {
 			err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)

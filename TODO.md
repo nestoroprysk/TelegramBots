@@ -1,18 +1,16 @@
 # Next
 
-- Add capturing issues
-- Add unit tests for the cmd package
 - Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
 
 # Technical
 
+- Add capturing issues
+- Add linter
+- Add prettier and formatter
 - Fix generating docs
-- Add prettier and formatter as a hook
-- Collect statistics on at least, success, fail, and error
 - Resolve in-code TODOs
 - Stabilize
     - Create a test bot and run integration tests against it with an in-memory DB
-- Add linter
 - Local dev
     - Create the local dev environment that starts SQL and function listeners in dockers
     - Makefile
@@ -20,23 +18,24 @@
         - `make expenses` reloads expenses
 - Cloudbuild
     - Lint
-    - Integration test
     - System test
-    - Deploy only after that
     - Trigger deployed functions and rollback (if possible) on fail
 - Email failed builds
-- Secure admin
-    - Research https://nordicapis.com/developing-secure-bots-using-the-telegram-apis/
+- Secure admin and expenses
 - Replace security-related `README.md` steps with the `gcloud` commands
 - Add Github badges
+- Try terraform for the infra initial setup
+
 
 # Functional
 
 - Add limits per category
 - Add statistics
+
+# Documenration
+
 - Document cloud functions
     - Research tools like Swagger
-- Try terraform for the infra initial setup
 
 # Tests
 
