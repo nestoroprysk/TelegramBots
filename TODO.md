@@ -4,6 +4,7 @@
 
 # Technical
 
+- Disable pushing if changes present
 - Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
 - Add linter
 - Add prettier and formatter
