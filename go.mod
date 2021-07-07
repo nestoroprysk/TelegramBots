@@ -3,6 +3,7 @@ module github.com/nestoroprysk/TelegramBots
 go 1.13
 
 require (
+	cloud.google.com/go v0.86.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jedib0t/go-pretty/v6 v6.2.2
 	github.com/onsi/ginkgo v1.16.4

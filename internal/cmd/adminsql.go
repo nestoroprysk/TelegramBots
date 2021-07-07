@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
+	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
 	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
@@ -29,13 +31,22 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 			Password:               os.Getenv("BOT_SQL_ROOT_PASS"),
 			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
 		},
+		ErrorReporter: errorreporter.Config{
+			ProjectID:   os.Getenv("PROJECT_ID"),
+			ServiceName: os.Getenv("SERVICE_NAME"),
+		},
 	}
 
 	v := validator.New()
 	resp := responder.New(w)
 
+	errorReporter, err := errorreporter.New(env.ErrorReporter)
+	if err != nil {
+		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
+	}
+
 	if err := v.Struct(env); err != nil {
-		// TODO: Capture
+		errorReporter.Error(err)
 		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
@@ -58,7 +69,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 
 	s, err := sqlclient.New(env.DB, sqlclient.NewOpener())
 	if err != nil {
-		// TODO: Capture
+		errorReporter.Error(err)
 		resp.Error(err)
 		return
 	}
@@ -93,7 +104,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 	t := telegramclient.New(env.Telegram, u.Message.Chat.ID, http.DefaultClient)
 	response, err := t.Send(text)
 	if err != nil {
-		// TODO: capture
+		errorReporter.Error(err)
 		resp.Error(err)
 		return
 	}

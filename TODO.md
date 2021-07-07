@@ -1,10 +1,10 @@
 # Next
 
-- Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
+- Refactor responding into a combined responder
 
 # Technical
 
-- Add capturing issues
+- Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
 - Add linter
 - Add prettier and formatter
 - Fix generating docs

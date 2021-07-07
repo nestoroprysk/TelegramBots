@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
+	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
 	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
@@ -28,13 +30,22 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			Password:               os.Getenv("BOT_SQL_ROOT_PASS"),
 			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
 		},
+		ErrorReporter: errorreporter.Config{
+			ProjectID:   os.Getenv("PROJECT_ID"),
+			ServiceName: os.Getenv("SERVICE_NAME"),
+		},
 	}
 
 	v := validator.New()
 	resp := responder.New(w)
 
+	errorReporter, err := errorreporter.New(e.ErrorReporter)
+	if err != nil {
+		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
+	}
+
 	if err := v.Struct(e); err != nil {
-		// TODO: Capture
+		errorReporter.Error(err)
 		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
@@ -54,10 +65,13 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 	var text string
 
-	if u.Message.Text == "/start" {
+	if u.Message.Text == "/error" {
+		text = fmt.Sprintf("Reporting (%s)...", u.Message.Text)
+		errorReporter.Error(fmt.Errorf("%s", text))
+	} else if u.Message.Text == "/start" {
 		s, err := sqlclient.New(e.DB, sqlclient.NewOpener())
 		if err != nil {
-			// TODO: Capture
+			errorReporter.Error(err)
 			resp.Error(err)
 			return
 		}
@@ -79,7 +93,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 		if err != nil {
-			// TODO: Capture
+			errorReporter.Error(err)
 			resp.Error(fmt.Errorf("failed to start the user (%s): %w", id, err))
 			return
 		}
@@ -95,7 +109,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 		s, err := sqlclient.New(user, sqlclient.NewOpener())
 		if err != nil {
-			// TODO: Capture
+			errorReporter.Error(err)
 			resp.Error(err)
 			return
 		}
@@ -129,7 +143,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 	t := telegramclient.New(e.Telegram, u.Message.Chat.ID, http.DefaultClient)
 	response, err := t.Send(text)
 	if err != nil {
-		// TODO: capture
+		errorReporter.Error(err)
 		resp.Error(err)
 		return
 	}
