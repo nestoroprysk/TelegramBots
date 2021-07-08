@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/sql"
 )
 
@@ -74,8 +73,20 @@ type sqlClient struct {
 	db DB
 }
 
+// Config defines the SQL client.
+type Config struct {
+	// Name is a database name to connect.
+	Name string `validate:"required"`
+	// User is an admin username.
+	User string `validate:"required"`
+	// Password is a password to the DBUser.
+	Password string `validate:"required"`
+	// InstanceConnectionName connects to the cloud SQL instance.
+	InstanceConnectionName string `validate:"required"`
+}
+
 // New creates an SQL client.
-func New(conf env.DB, open DBOpener) (SQLClient, error) {
+func New(conf Config, open DBOpener) (SQLClient, error) {
 	const socketDir = "/cloudsql"
 	dbURI := fmt.Sprintf("%s:%s@unix(/%s/%s)/%s?parseTime=true", conf.User, conf.Password, socketDir, conf.InstanceConnectionName, conf.Name)
 

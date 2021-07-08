@@ -26,7 +26,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			Token:   os.Getenv("EXPENSES_BOT_TOKEN"),
 			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
-		DB: env.DB{
+		SQL: sqlclient.Config{
 			Name:                   "information_schema",
 			User:                   "root",
 			Password:               os.Getenv("BOT_SQL_ROOT_PASS"),
@@ -72,7 +72,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		text = fmt.Sprintf("Reporting (%s)...", strings.TrimSpace(strings.TrimPrefix(u.Message.Text, "/error")))
 		errorReporter.Error(fmt.Errorf("%s", text))
 	} else if u.Message.Text == "/start" {
-		s, err := sqlclient.New(e.DB, sqlclient.NewOpener())
+		s, err := sqlclient.New(e.SQL, sqlclient.NewOpener())
 		if err != nil {
 			errorReporter.Error(err)
 			resp.Error(err)
@@ -104,7 +104,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 		// TODO: Drop the user on stopping the bot
 		text = "Welcome! Type 'show tables' to begin..."
 	} else {
-		user := env.DB{
+		user := sqlclient.Config{
 			Name:                   id,
 			User:                   id,
 			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),

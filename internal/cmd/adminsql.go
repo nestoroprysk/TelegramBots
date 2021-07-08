@@ -26,7 +26,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 			Token:   os.Getenv("ADMIN_BOT_TOKEN"),
 			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
-		DB: env.DB{
+		SQL: sqlclient.Config{
 			Name:                   "information_schema",
 			User:                   "root",
 			Password:               os.Getenv("BOT_SQL_ROOT_PASS"),
@@ -75,7 +75,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := sqlclient.New(env.DB, sqlclient.NewOpener())
+	s, err := sqlclient.New(env.SQL, sqlclient.NewOpener())
 	if err != nil {
 		errorReporter.Error(err)
 		resp.Error(err)
