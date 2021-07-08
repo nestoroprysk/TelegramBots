@@ -55,5 +55,5 @@ func (er errorReporter) Error(err error) {
 
 // Close flushes all that should be reported.
 func (er errorReporter) Close() error {
-	return er.Close()
+	return er.Client.Close()
 }
