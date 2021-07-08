@@ -24,9 +24,9 @@ var _ ErrorReporter = &errorReporter{}
 // Config defines the error reporter client.
 type Config struct {
 	// ProjectID links the reporter error with the project.
-	ProjectID string `validator: "required"`
+	ProjectID string `validate: "required"`
 	// ServiceName labels the reported error as the one that belongs to the service.
-	ServiceName string `validator: "required"`
+	ServiceName string `validate: "required"`
 }
 
 // New creates a new error reporter.

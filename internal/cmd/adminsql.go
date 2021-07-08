@@ -40,6 +40,12 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 	resp := responder.New(w)
 
+	// Responder | Scenario | Action
+	// HTTP      | Success  | Succeed()
+	// Logger    | Success  | Succeed()
+	// Telegram  | Success  | Succeed()
+	// - Error reporter
+
 	errorReporter, err := errorreporter.New(env.ErrorReporter)
 	if err != nil {
 		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
