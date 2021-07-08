@@ -44,6 +44,7 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
 	}
+	defer errorReporter.Close()
 
 	if err := v.Struct(env); err != nil {
 		errorReporter.Error(err)

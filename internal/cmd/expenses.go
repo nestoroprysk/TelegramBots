@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
@@ -43,6 +44,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
 	}
+	defer errorReporter.Close()
 
 	if err := v.Struct(e); err != nil {
 		errorReporter.Error(err)
@@ -65,8 +67,8 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 
 	var text string
 
-	if u.Message.Text == "/error" {
-		text = fmt.Sprintf("Reporting (%s)...", u.Message.Text)
+	if strings.HasPrefix(u.Message.Text, "/error") { // TODO: Drop.
+		text = fmt.Sprintf("Reporting (%s)...", strings.TrimSpace(strings.TrimPrefix(u.Message.Text, "/error")))
 		errorReporter.Error(fmt.Errorf("%s", text))
 	} else if u.Message.Text == "/start" {
 		s, err := sqlclient.New(e.DB, sqlclient.NewOpener())
