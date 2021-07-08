@@ -1,9 +1,11 @@
 # Next
 
-- Refactor responding into a combined responder
+- Make environment hold all the clients whereas EnvOptions will hold all the configs
 
 # Technical
 
+- Refactor responding into a combined responder
+- Validate fix require (probably embedding doesn't work)
 - Disable pushing if changes present
 - Add integration tests (with the mock telegram and the local mysql DB) for the cmd package
 - Add linter

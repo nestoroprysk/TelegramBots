@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/mock"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
@@ -20,7 +19,7 @@ func TestTelegramClient(t *testing.T) {
 }
 
 var _ = It("Errors nicely if post fails", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	p := mock.NewPoster(mock.PostFormError(fmt.Errorf("oh no!")))
 	c := telegramclient.New(conf, chatID, p)
@@ -29,7 +28,7 @@ var _ = It("Errors nicely if post fails", func() {
 })
 
 var _ = It("Errors nicely if the response code is not ok", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	p := mock.NewPoster(mock.PostFormStatusCode(401))
 	c := telegramclient.New(conf, chatID, p)
@@ -38,7 +37,7 @@ var _ = It("Errors nicely if the response code is not ok", func() {
 })
 
 var _ = It("Errors nicely if fails to parse the body", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	p := mock.NewPoster(mock.PostFormStatusCode(http.StatusOK))
 	c := telegramclient.New(conf, chatID, p)
@@ -47,7 +46,7 @@ var _ = It("Errors nicely if fails to parse the body", func() {
 })
 
 var _ = It("Errors nicely if the response is not ok", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	rc := mock.NewReadCloser([]byte(`{"ok":false}`))
 	p := mock.NewPoster(mock.PostFormStatusCode(http.StatusOK), mock.PostFormBody(&rc))
@@ -57,7 +56,7 @@ var _ = It("Errors nicely if the response is not ok", func() {
 })
 
 var _ = It("Errors nicely if the error code is not zero", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	rc := mock.NewReadCloser([]byte(`{"ok":true, "error_code":1}`))
 	p := mock.NewPoster(mock.PostFormStatusCode(http.StatusOK), mock.PostFormBody(&rc))
@@ -67,7 +66,7 @@ var _ = It("Errors nicely if the error code is not zero", func() {
 })
 
 var _ = It("Succeeds", func() {
-	conf := env.Telegram{}
+	conf := telegramclient.Config{}
 	chatID := 10
 	rc := mock.NewReadCloser([]byte(`{"ok":true, "result":{"text":"123"}}`))
 	p := mock.NewPoster(mock.PostFormStatusCode(http.StatusOK), mock.PostFormBody(&rc))

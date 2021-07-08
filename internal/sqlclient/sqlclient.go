@@ -1,19 +1,20 @@
 package sqlclient
 
 import (
-	"database/sql"
+	gosql "database/sql"
 	"fmt"
 	"reflect"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 )
 
 // SQLClient selects and executes.
 type SQLClient interface {
 	// Query selects into the table.
-	Query(Query) (Table, error)
+	Query(Query) (sql.Table, error)
 	// Exec executes queries inside a transaction.
-	Exec(...Query) (Result, error)
+	Exec(...Query) (sql.Result, error)
 }
 
 var _ SQLClient = &sqlClient{}
@@ -24,22 +25,6 @@ type Query struct {
 	Statement string
 	// Args are arguments to the statement.
 	Args []interface{}
-}
-
-// Table is the result of the select statement.
-type Table struct {
-	// Columns is a list of columns.
-	Columns []string
-	// Rows is a list of maps from a column name to the result.
-	Rows []map[string]interface{}
-}
-
-// Result is the result of a non-select SQL statement.
-type Result struct {
-	// RowsAffected counts affected rows.
-	RowsAffected int64
-	// LastInsertID indicates the last insertID.
-	LastInsertID int64
 }
 
 // Rows is the result of a select.
@@ -73,14 +58,14 @@ type DB interface {
 // Tx is a transaction.
 type Tx interface {
 	// Exec executes inside a transaction.
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Exec(query string, args ...interface{}) (gosql.Result, error)
 	// Rollback undoes all the queries that are a part of the transaction.
 	Rollback() error
 	// Commit commits the transaction.
 	Commit() error
 }
 
-var _ Tx = &sql.Tx{}
+var _ Tx = &gosql.Tx{}
 
 // DBOpener opens a database connection (e.g., sql.Open).
 type DBOpener func(driverName, dataSourceName string) (DB, error)
@@ -107,10 +92,10 @@ func New(conf env.DB, open DBOpener) (SQLClient, error) {
 }
 
 // Query selects into the table.
-func (sc sqlClient) Query(q Query) (Table, error) {
+func (sc sqlClient) Query(q Query) (sql.Table, error) {
 	result, err := sc.db.Query(q.Statement, q.Args...)
 	if err != nil {
-		return Table{}, err
+		return sql.Table{}, err
 	}
 
 	return ConvertRows(result)
@@ -119,10 +104,10 @@ func (sc sqlClient) Query(q Query) (Table, error) {
 // Exec executes queries inside a transaction.
 //
 // The result is the sum of the affected rows.
-func (sc sqlClient) Exec(qs ...Query) (Result, error) {
+func (sc sqlClient) Exec(qs ...Query) (sql.Result, error) {
 	tx, err := sc.db.Begin()
 	if err != nil {
-		return Result{}, err
+		return sql.Result{}, err
 	}
 
 	var (
@@ -134,13 +119,13 @@ func (sc sqlClient) Exec(qs ...Query) (Result, error) {
 		r, err := tx.Exec(q.Statement, q.Args...)
 		if err != nil {
 			_ = tx.Rollback()
-			return Result{}, err
+			return sql.Result{}, err
 		}
 
 		rowsAffected, err := r.RowsAffected()
 		if err != nil {
 			_ = tx.Rollback()
-			return Result{}, err
+			return sql.Result{}, err
 		}
 
 		result += rowsAffected
@@ -148,15 +133,15 @@ func (sc sqlClient) Exec(qs ...Query) (Result, error) {
 		lastInsertID, err = r.LastInsertId()
 		if err != nil {
 			_ = tx.Rollback()
-			return Result{}, err
+			return sql.Result{}, err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return Result{}, err
+		return sql.Result{}, err
 	}
 
-	return Result{
+	return sql.Result{
 		RowsAffected: result,
 		LastInsertID: lastInsertID,
 	}, nil

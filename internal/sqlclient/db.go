@@ -1,19 +1,19 @@
 package sqlclient
 
 import (
-	"database/sql"
+	gosql "database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type mysqlDB struct {
-	db *sql.DB
+	db *gosql.DB
 }
 
 var _ DB = &mysqlDB{}
 
 type rows struct {
-	r *sql.Rows
+	r *gosql.Rows
 }
 
 var _ Rows = &rows{}
@@ -41,7 +41,7 @@ func (db mysqlDB) Ping() error {
 // NewOpener creates a new mysql DB opener.
 func NewOpener() DBOpener {
 	return func(driverName, dataSourceName string) (DB, error) {
-		db, err := sql.Open(driverName, dataSourceName)
+		db, err := gosql.Open(driverName, dataSourceName)
 		if err != nil {
 			return nil, err
 		}

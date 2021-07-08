@@ -1,10 +1,9 @@
-package util_test
+package sql_test
 
 import (
 	"testing"
 
-	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
-	"github.com/nestoroprysk/TelegramBots/internal/util"
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -13,15 +12,15 @@ import (
 
 func TestUtil(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Util Suite")
+	RunSpecs(t, "SQL Suite")
 }
 
-var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) {
-	result := util.Format(t)
+var _ = DescribeTable("Formats", func(t sql.Table, expectedResult string) {
+	result := sql.FormatTable(t)
 	Expect(result).To(Equal(expectedResult))
 },
 	Entry("Formats response",
-		sqlclient.Table{
+		sql.Table{
 			Columns: []string{"name", "age"},
 			Rows: []map[string]interface{}{
 				{
@@ -42,18 +41,18 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 +------+-----+`,
 	),
 	Entry("Formats empty response",
-		sqlclient.Table{},
+		sql.Table{},
 		"",
 	),
 	Entry("Formats column only response",
-		sqlclient.Table{Columns: []string{"a", "b"}},
+		sql.Table{Columns: []string{"a", "b"}},
 		`+---+---+
 | A | B |
 +---+---+
 +---+---+`,
 	),
 	Entry("Formats response with not enough columns in row",
-		sqlclient.Table{
+		sql.Table{
 			Columns: []string{"name", "age", "date"},
 			Rows: []map[string]interface{}{
 				{
@@ -69,7 +68,7 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 +------+-----+------+`,
 	),
 	Entry("Formats response with too many columns in row",
-		sqlclient.Table{
+		sql.Table{
 			Columns: []string{"name"},
 			Rows: []map[string]interface{}{
 				{
@@ -85,7 +84,3 @@ var _ = DescribeTable("Formats", func(t sqlclient.Table, expectedResult string) 
 +------+`,
 	),
 )
-
-var _ = It("Formats exec result", func() {
-	Expect(util.FormatResult(sqlclient.Result{RowsAffected: 1})).To(Equal("Query OK, 1 row affected"))
-})

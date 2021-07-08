@@ -1,23 +1,18 @@
 package env
 
-import "github.com/nestoroprysk/TelegramBots/internal/errorreporter"
+import (
+	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
+	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
+)
 
 // Env contains information from the global variables.
 type Env struct {
-	Telegram      `validate:"required"`
+	Telegram      telegramclient.Config `validate:"required"`
 	DB            `validate:"required"`
 	ErrorReporter errorreporter.Config `validate:"required"`
 }
 
 // TODO: Move structs to proper packages
-
-// Telegram is the Telegram environment.
-type Telegram struct {
-	// Token is a Telegram bot token.
-	Token string `validate:"required"`
-	// AdminID is an ID of the admin Telegram user.
-	AdminID int `validate:"gt=0"`
-}
 
 // DB is the SQL environment.
 type DB struct {

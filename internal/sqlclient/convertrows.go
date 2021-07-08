@@ -4,23 +4,24 @@ import (
 	"reflect"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 )
 
 // ConvertRows converts rows into a table.
 //
 // Source: https://kylewbanks.com/blog/query-result-to-map-in-golang.
-func ConvertRows(rows Rows) (Table, error) {
+func ConvertRows(rows Rows) (sql.Table, error) {
 	cols, err := rows.Columns()
 	if err != nil {
-		return Table{}, err
+		return sql.Table{}, err
 	}
 
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return Table{}, err
+		return sql.Table{}, err
 	}
 
-	result := Table{Columns: cols}
+	result := sql.Table{Columns: cols}
 
 	for rows.Next() {
 		columns := make([]interface{}, len(cols))
@@ -31,7 +32,7 @@ func ConvertRows(rows Rows) (Table, error) {
 
 		// Scan the result into the column pointers...
 		if err := rows.Scan(columns...); err != nil {
-			return Table{}, err
+			return sql.Table{}, err
 		}
 
 		m := make(map[string]interface{})

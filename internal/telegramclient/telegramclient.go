@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
 )
@@ -32,8 +31,16 @@ type telegramClient struct {
 	client Poster
 }
 
+// Config defines the Telegram client.
+type Config struct {
+	// Token is a Telegram bot token.
+	Token string `validate:"required"`
+	// AdminID is an ID of the admin Telegram user.
+	AdminID int `validate:"gt=0"`
+}
+
 // NewTelegramClient creates a Telegram client.
-func New(conf env.Telegram, chatID int, client Poster) TelegramClient {
+func New(conf Config, chatID int, client Poster) TelegramClient {
 	return &telegramClient{
 		token:  conf.Token,
 		chatID: strconv.Itoa(chatID),

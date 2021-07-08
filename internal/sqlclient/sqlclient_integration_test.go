@@ -1,8 +1,9 @@
 package sqlclient_test
 
 import (
-	"database/sql"
+	gosql "database/sql"
 
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -15,7 +16,7 @@ type Input struct {
 	// Exec executes just after setup and optionally asserts results.
 	Exec map[*[]sqlclient.Query]*Result
 	// Queries maps queries to expected results just after exec.
-	Queries map[*sqlclient.Query]sqlclient.Table
+	Queries map[*sqlclient.Query]sql.Table
 	// Cleanup makes sure that nothing is left after the execution.
 	Cleanup []sqlclient.Query
 }
@@ -23,7 +24,7 @@ type Input struct {
 // Result is either exec result or error.
 type Result struct {
 	// Result asserts exec result.
-	Result sqlclient.Result
+	Result sql.Result
 	// Err asserts exec error.
 	Err bool
 }
@@ -58,11 +59,11 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 },
 	Entry("Selects a",
 		Input{
-			Queries: map[*sqlclient.Query]sqlclient.Table{
-				&sqlclient.Query{Statement: `select "a"`}: sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
+				&sqlclient.Query{Statement: `select "a"`}: sql.Table{
 					Columns: []string{"a"},
 					Rows: []map[string]interface{}{
-						{"a": sql.RawBytes("a")},
+						{"a": gosql.RawBytes("a")},
 					},
 				},
 			},
@@ -71,8 +72,8 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 
 	Entry("Selects 1",
 		Input{
-			Queries: map[*sqlclient.Query]sqlclient.Table{
-				&sqlclient.Query{Statement: `select 1`}: sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
+				&sqlclient.Query{Statement: `select 1`}: sql.Table{
 					Columns: []string{"1"},
 					Rows: []map[string]interface{}{
 						{"1": int64(1)},
@@ -84,8 +85,8 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 
 	Entry("Selects 1 as foo",
 		Input{
-			Queries: map[*sqlclient.Query]sqlclient.Table{
-				&sqlclient.Query{Statement: `select 1 as "foo"`}: sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
+				&sqlclient.Query{Statement: `select 1 as "foo"`}: sql.Table{
 					Columns: []string{"foo"},
 					Rows: []map[string]interface{}{
 						{"foo": int64(1)},
@@ -97,11 +98,11 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 
 	Entry("Selects 1 as argument",
 		Input{
-			Queries: map[*sqlclient.Query]sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
 				&sqlclient.Query{
 					Statement: `select ? as "foo"`,
 					Args:      []interface{}{1},
-				}: sqlclient.Table{
+				}: sql.Table{
 					Columns: []string{"foo"},
 					Rows: []map[string]interface{}{
 						{"foo": int64(1)},
@@ -128,15 +129,15 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 					Args:      []interface{}{1, 2, 3},
 				},
 			},
-			Queries: map[*sqlclient.Query]sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
 				&sqlclient.Query{
 					Statement: `select * from t;`,
-				}: sqlclient.Table{
+				}: sql.Table{
 					Columns: []string{"i"},
 					Rows: []map[string]interface{}{
-						{"i": sql.NullInt64{Int64: 1, Valid: true}},
-						{"i": sql.NullInt64{Int64: 2, Valid: true}},
-						{"i": sql.NullInt64{Int64: 3, Valid: true}},
+						{"i": gosql.NullInt64{Int64: 1, Valid: true}},
+						{"i": gosql.NullInt64{Int64: 2, Valid: true}},
+						{"i": gosql.NullInt64{Int64: 3, Valid: true}},
 					},
 				},
 			},
@@ -168,7 +169,7 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 						Args:      []interface{}{-1},
 					},
 				}: &Result{
-					Result: sqlclient.Result{
+					Result: sql.Result{
 						RowsAffected: 1,
 					},
 				},
@@ -183,13 +184,13 @@ var _ = DescribeTable("Queries and executes like a pro", func(e Input) {
 					},
 				}: &Result{Err: true},
 			},
-			Queries: map[*sqlclient.Query]sqlclient.Table{
+			Queries: map[*sqlclient.Query]sql.Table{
 				&sqlclient.Query{
 					Statement: `select * from t;`,
-				}: sqlclient.Table{
+				}: sql.Table{
 					Columns: []string{"i"},
 					Rows: []map[string]interface{}{
-						{"i": sql.NullInt64{Int64: -1, Valid: true}},
+						{"i": gosql.NullInt64{Int64: -1, Valid: true}},
 					},
 				},
 			},

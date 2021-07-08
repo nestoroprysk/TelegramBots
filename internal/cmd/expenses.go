@@ -11,6 +11,7 @@ import (
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
 	"github.com/nestoroprysk/TelegramBots/internal/responder"
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
@@ -21,7 +22,7 @@ import (
 
 func Expenses(w http.ResponseWriter, r *http.Request) {
 	e := env.Env{
-		Telegram: env.Telegram{
+		Telegram: telegramclient.Config{
 			Token:   os.Getenv("EXPENSES_BOT_TOKEN"),
 			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
@@ -122,7 +123,7 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
 				result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
 				if err == nil {
-					text = util.Format(result)
+					text = sql.FormatTable(result)
 				} else {
 					err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
 					text = err.Error() // Hint user that the SQL statement is not ok.

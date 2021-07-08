@@ -5,7 +5,9 @@ import (
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/mock"
+	"github.com/nestoroprysk/TelegramBots/internal/sql"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -33,7 +35,7 @@ var _ = It("Queries just fine", func() {
 	result, err := db.Query(sqlclient.Query{Statement: "select 1;"})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(result).To(Equal(
-		sqlclient.Table{
+		sql.Table{
 			Columns: []string{"1"},
 			Rows: []map[string]interface{}{
 				{"1": 1},
@@ -75,7 +77,7 @@ var _ = It("Executes just fine", func() {
 		},
 	)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(result).To(Equal(sqlclient.Result{
+	Expect(result).To(Equal(sql.Result{
 		RowsAffected: 5,
 		LastInsertID: 42,
 	}))
