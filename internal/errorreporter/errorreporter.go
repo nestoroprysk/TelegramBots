@@ -2,24 +2,19 @@ package errorreporter
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"cloud.google.com/go/errorreporting"
+	"github.com/nestoroprysk/TelegramBots/internal/responder"
 )
-
-// ErrorReporter reports error.
-type ErrorReporter interface {
-	// Error reports errors.
-	Error(error)
-	// Close flushes all that should be reported.
-	Close() error
-}
 
 type errorReporter struct {
 	*errorreporting.Client
+	responder.Responder
 }
 
-var _ ErrorReporter = &errorReporter{}
+var _ responder.Responder = &errorReporter{}
 
 // Config defines the error reporter client.
 type Config struct {
@@ -29,31 +24,43 @@ type Config struct {
 	ServiceName string `validate: "required"`
 }
 
-// New creates a new error reporter.
-func New(conf Config) (ErrorReporter, error) {
+// Wrap adds an error reporter to the responder.
+func Wrap(r responder.Responder, conf Config) (responder.Responder, bool) {
 	client, err := errorreporting.NewClient(context.TODO(), conf.ProjectID, errorreporting.Config{
 		ServiceName: conf.ServiceName,
 		OnError: func(err error) {
-			// TODO: Inject our err client
-			log.Printf("could not report the error error (%+v)", err)
+			log.Printf("could not report the error (%+v)", err)
 		},
 	})
 	if err != nil {
-		return nil, err
+		r.Error(fmt.Errorf("failed to initialize the error reporter: %w", err))
+		return nil, false
 	}
 
-	return errorReporter{Client: client}, nil
+	return errorReporter{Client: client, Responder: r}, false
+}
+
+func (er errorReporter) Succeed(b interface{}) error {
+	return er.Responder.Succeed(b)
+}
+
+func (er errorReporter) Fail(err error) error {
+	return er.Responder.Fail(err)
 }
 
 // Error reports errors.
-func (er errorReporter) Error(err error) {
+func (er errorReporter) Error(err error) error {
 	er.Report(errorreporting.Entry{
 		// TODO: Add user
 		Error: err,
 	})
+
+	return er.Responder.Error(err)
 }
 
 // Close flushes all that should be reported.
 func (er errorReporter) Close() error {
-	return er.Client.Close()
+	err := er.Client.Close()
+	log.Printf("failed to close the error reporter: %+v", err)
+	return err
 }

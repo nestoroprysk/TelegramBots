@@ -7,25 +7,22 @@ import (
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
 )
 
 // TODO: cover with unit tests
 
-// TelegramClient is an interface for sending text to chat.
-type TelegramClient interface {
-	Send(text string) (telegram.Response, error)
-}
-
 // Poster posts an HTTP request.
 type Poster interface {
 	PostForm(url string, data url.Values) (resp *http.Response, err error)
 }
 
-var _ TelegramClient = &telegramClient{}
+var _ responder.Responder = &telegramClient{}
 
 type telegramClient struct {
+	responder.Responder
 	token  string
 	chatID string
 	client Poster
@@ -39,17 +36,47 @@ type Config struct {
 	AdminID int `validate:"gt=0"`
 }
 
-// NewTelegramClient creates a Telegram client.
-func New(conf Config, chatID int, client Poster) TelegramClient {
+// Wrap adds a Telegram client the responder.
+func Wrap(r responder.Responder, conf Config, chatID int, client Poster) responder.Responder {
 	return &telegramClient{
-		token:  conf.Token,
-		chatID: strconv.Itoa(chatID),
-		client: client,
+		Responder: r,
+		token:     conf.Token,
+		chatID:    strconv.Itoa(chatID),
+		client:    client,
 	}
 }
 
+func (tc telegramClient) Succeed(b interface{}) error {
+	resp, err := tc.send(b)
+	if err != nil {
+		return tc.Responder.Error(err)
+	}
+
+	return tc.Responder.Succeed(resp)
+}
+
+func (tc telegramClient) Fail(err error) error {
+	if _, errt := tc.send("Something is wrong with Telegram! Try again later..."); errt != nil {
+		return tc.Responder.Error(util.CombineErrors(err, errt))
+	}
+
+	return tc.Responder.Fail(err)
+}
+
+func (tc telegramClient) Error(err error) error {
+	if _, errt := tc.send("Something is wrong with me! Try again later..."); errt != nil {
+		return tc.Responder.Error(util.CombineErrors(err, errt))
+	}
+
+	return tc.Responder.Error(err)
+}
+
+func (tc telegramClient) Close() error {
+	return tc.Responder.Close()
+}
+
 // Send sends text to chat.
-func (tc telegramClient) Send(text string) (telegram.Response, error) {
+func (tc telegramClient) send(text interface{}) (telegram.Response, error) {
 	response, err := tc.client.PostForm(
 		"https://api.telegram.org/bot"+tc.token+"/sendMessage",
 		url.Values{

@@ -21,6 +21,17 @@ type Test struct {
 	OptionalString string `json:"text"`
 }
 
+type WithTest struct {
+	Test Test
+}
+
+var _ = It("Embedded structs are validated", func() {
+	e := WithTest{Test: Test{RequiredString: "yes", PositiveInt: -1}}
+	v := validator.New()
+	err := v.Struct(e)
+	Expect(err).To(HaveOccurred())
+})
+
 var _ = DescribeTable("Validates the test struct", func(t Test, succeed bool) {
 	v := validator.New()
 	result := v.Struct(t)
