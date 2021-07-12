@@ -2,29 +2,28 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
+	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/sql"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
+	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
+	"github.com/nestoroprysk/TelegramBots/internal/validator"
 
 	"github.com/xwb1989/sqlparser"
 )
 
 func Admin(w http.ResponseWriter, r *http.Request) {
-	env, ok := env.New(env.Config{
-		ResponseWriter: w,
-		Request:        r,
-		DBOpener:       sqlclient.NewOpener(),
-		Poster:         http.DefaultClient,
+	env := env.Env{
 		Telegram: telegramclient.Config{
-			Token: os.Getenv("ADMIN_BOT_TOKEN"),
-			// TODO: Move to a small function
+			Token:   os.Getenv("ADMIN_BOT_TOKEN"),
 			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
 		},
 		SQL: sqlclient.Config{
@@ -37,41 +36,86 @@ func Admin(w http.ResponseWriter, r *http.Request) {
 			ProjectID:   os.Getenv("PROJECT_ID"),
 			ServiceName: os.Getenv("SERVICE_NAME"),
 		},
-		AssertAdminID: true,
-	})
-	if !ok {
+	}
+
+	v := validator.New()
+	resp := responder.New(w)
+
+	// Responder | Scenario | Action
+	// HTTP      | Success  | Succeed()
+	// Logger    | Success  | Succeed()
+	// Telegram  | Success  | Succeed()
+	// - Error reporter
+
+	errorReporter, err := errorreporter.New(env.ErrorReporter)
+	if err != nil {
+		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
+	}
+	defer errorReporter.Close()
+
+	if err := v.Struct(env); err != nil {
+		errorReporter.Error(err)
+		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
-	defer env.Close()
 
-	stmt, err := sqlparser.Parse(env.Update.Message.Text)
+	u, err := telegram.ParseUpdate(r.Body)
+	if err != nil {
+		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
+		return
+	}
+
+	if err := v.Struct(u); err != nil {
+		resp.Fail(fmt.Errorf("failed to validate the update: %w", err))
+		return
+	}
+
+	if u.Message.From.ID != env.Telegram.AdminID {
+		resp.Fail(fmt.Errorf("user id (%d) is not authenticated to call the function", u.Message.From.ID))
+		return
+	}
+
+	s, err := sqlclient.New(env.SQL, sqlclient.NewOpener())
+	if err != nil {
+		errorReporter.Error(err)
+		resp.Error(err)
+		return
+	}
+
+	var text string
+
+	stmt, err := sqlparser.Parse(u.Message.Text)
 	if err == nil {
 		switch stmt.(type) {
 		case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
-			result, err := env.SQLClient.Query(sqlclient.Query{Statement: env.Update.Message.Text})
+			result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
 			if err == nil {
-				env.Responder.Succeed(sql.FormatTable(result))
-				return
+				text = sql.FormatTable(result)
 			} else {
-				// TODO: Move to a small function
-				env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
-				return
+				err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+				text = err.Error() // Hint user that the SQL statement is not ok.
 			}
 		default:
-			result, err := env.SQLClient.Exec(sqlclient.Query{Statement: env.Update.Message.Text})
+			result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
 			if err == nil {
-				// TODO: Move to a small function
-				env.Responder.Succeed(fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected))))
-				return
+				text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
 			} else {
-				// TODO: Move to a small function
-				env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
-				return
+				err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+				text = err.Error() // Hint user that the SQL statement is not ok.
 			}
 		}
 	} else {
-		// TODO: Move to a small function
-		env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
+		err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+		text = err.Error() // Hint user that the SQL statement is not ok.
+	}
+
+	t := telegramclient.New(env.Telegram, u.Message.Chat.ID, http.DefaultClient)
+	response, err := t.Send(text)
+	if err != nil {
+		errorReporter.Error(err)
+		resp.Error(err)
 		return
 	}
+
+	resp.Succeed(response)
 }

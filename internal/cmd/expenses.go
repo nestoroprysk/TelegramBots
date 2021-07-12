@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -9,19 +10,18 @@ import (
 
 	"github.com/nestoroprysk/TelegramBots/internal/env"
 	"github.com/nestoroprysk/TelegramBots/internal/errorreporter"
+	"github.com/nestoroprysk/TelegramBots/internal/responder"
 	"github.com/nestoroprysk/TelegramBots/internal/sql"
 	"github.com/nestoroprysk/TelegramBots/internal/sqlclient"
+	"github.com/nestoroprysk/TelegramBots/internal/telegram"
 	"github.com/nestoroprysk/TelegramBots/internal/telegramclient"
 	"github.com/nestoroprysk/TelegramBots/internal/util"
+	"github.com/nestoroprysk/TelegramBots/internal/validator"
 	"github.com/xwb1989/sqlparser"
 )
 
 func Expenses(w http.ResponseWriter, r *http.Request) {
-	env, ok := env.New(env.Config{
-		ResponseWriter: w,
-		Request:        r,
-		DBOpener:       sqlclient.NewOpener(),
-		Poster:         http.DefaultClient,
+	e := env.Env{
 		Telegram: telegramclient.Config{
 			Token:   os.Getenv("EXPENSES_BOT_TOKEN"),
 			AdminID: func() int { result, _ := strconv.Atoi(os.Getenv("ADMIN_ID")); return result }(),
@@ -36,24 +36,52 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			ProjectID:   os.Getenv("PROJECT_ID"),
 			ServiceName: os.Getenv("SERVICE_NAME"),
 		},
-	})
-	if !ok {
+	}
+
+	v := validator.New()
+	resp := responder.New(w)
+
+	errorReporter, err := errorreporter.New(e.ErrorReporter)
+	if err != nil {
+		log.Print(fmt.Errorf("failed to initialize the error reporter: %w", err).Error())
+	}
+	defer errorReporter.Close()
+
+	if err := v.Struct(e); err != nil {
+		errorReporter.Error(err)
+		resp.Error(fmt.Errorf("failed to initialize the environment: %w", err))
 		return
 	}
-	defer env.Close()
 
-	// TODO: Move to a small function
-	id := "expenses" + strconv.Itoa(env.Update.Message.From.ID)
-
-	// TODO: Drop
-	if env.Update.Message.Text == "/error" {
-		b := strings.TrimSpace(strings.TrimPrefix(env.Update.Message.Text, "/error"))
-		env.Responder.Error(fmt.Errorf("%s", b))
+	u, err := telegram.ParseUpdate(r.Body)
+	if err != nil {
+		resp.Fail(fmt.Errorf("failed to parse the update: %w", err))
 		return
-	} else if env.Update.Message.Text == "/start" {
-		// TODO: Move to a function
+	}
+
+	if err := v.Struct(u); err != nil {
+		resp.Fail(fmt.Errorf("failed to validate the update: %w", err))
+		return
+	}
+
+	id := "expenses" + strconv.Itoa(u.Message.From.ID)
+
+	var text string
+
+	if strings.HasPrefix(u.Message.Text, "/error") { // TODO: Drop.
+		text = fmt.Sprintf("Reporting (%s)...", strings.TrimSpace(strings.TrimPrefix(u.Message.Text, "/error")))
+		errorReporter.Error(fmt.Errorf("%s", text))
+	} else if u.Message.Text == "/start" {
+		s, err := sqlclient.New(e.SQL, sqlclient.NewOpener())
+		if err != nil {
+			errorReporter.Error(err)
+			resp.Error(err)
+			return
+		}
+
 		// TODO: Refactore inline SQL in some way
-		if _, err := env.SQLClient.Exec(
+
+		_, err = s.Exec(
 			sqlclient.Query{
 				Statement: fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", id),
 			},
@@ -66,49 +94,62 @@ func Expenses(w http.ResponseWriter, r *http.Request) {
 			sqlclient.Query{
 				Statement: fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.e TO '%s'@'%%';", id, id),
 			},
-		); err == nil {
-			env.Responder.Succeed("Welcome! Type 'show tables' to begin...")
-			return
-		} else {
-			env.Responder.Error(fmt.Errorf("failed to start the user (%s): %w", id, err))
-			return
-		}
-
-		// TODO: Drop the user on stopping the bot in a while
-	} else {
-		// TODO: Move to a function
-		s, err := env.UserSQLClient(id)
+		)
 		if err != nil {
-			env.Responder.Error(err)
+			errorReporter.Error(err)
+			resp.Error(fmt.Errorf("failed to start the user (%s): %w", id, err))
 			return
 		}
 
-		stmt, err := sqlparser.Parse(env.Update.Message.Text)
+		// TODO: Drop the user on stopping the bot
+		text = "Welcome! Type 'show tables' to begin..."
+	} else {
+		user := sqlclient.Config{
+			Name:                   id,
+			User:                   id,
+			InstanceConnectionName: os.Getenv("BOT_SQL_CONNECTION_NAME"),
+		}
+
+		s, err := sqlclient.New(user, sqlclient.NewOpener())
+		if err != nil {
+			errorReporter.Error(err)
+			resp.Error(err)
+			return
+		}
+
+		stmt, err := sqlparser.Parse(u.Message.Text)
 		if err == nil {
 			switch stmt.(type) {
 			case *sqlparser.Select, *sqlparser.Show, *sqlparser.OtherRead:
-				result, err := s.Query(sqlclient.Query{Statement: env.Update.Message.Text})
+				result, err := s.Query(sqlclient.Query{Statement: u.Message.Text})
 				if err == nil {
-					env.Responder.Succeed(sql.FormatTable(result))
-					return
+					text = sql.FormatTable(result)
 				} else {
-					env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
-					return
+					err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+					text = err.Error() // Hint user that the SQL statement is not ok.
 				}
 			default:
-				result, err := s.Exec(sqlclient.Query{Statement: env.Update.Message.Text})
+				result, err := s.Exec(sqlclient.Query{Statement: u.Message.Text})
 				if err == nil {
-					// TODO: Move to a small function
-					env.Responder.Succeed(fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected))))
-					return
+					text = fmt.Sprintf("Query OK, %d %s affected", result.RowsAffected, util.Pluralize("row", int(result.RowsAffected)))
 				} else {
-					env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
-					return
+					err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+					text = err.Error() // Hint user that the SQL statement is not ok.
 				}
 			}
 		} else {
-			env.Responder.Succeed(fmt.Sprintf("invalid input SQL statement (%s): %s", env.Update.Message.Text, err.Error()))
-			return
+			err := fmt.Errorf("invalid input SQL statement (%s): %w", u.Message.Text, err)
+			text = err.Error() // Hint user that the SQL statement is not ok.
 		}
 	}
+
+	t := telegramclient.New(e.Telegram, u.Message.Chat.ID, http.DefaultClient)
+	response, err := t.Send(text)
+	if err != nil {
+		errorReporter.Error(err)
+		resp.Error(err)
+		return
+	}
+
+	resp.Succeed(response)
 }
